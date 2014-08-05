@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <!--<link rel="stylesheet" type="text/css" href="/lib/css/bootstrap.css">-->
+    <!--<script type="text/javascript" src="../lib/js/bootstrap.js"></script>-->
+    <!--<script type="text/javascript" src="lib/js/jquery-1.11.0.js"></script>-->
+
+    <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.css">
+    <!--<link rel="stylesheet" type="text/css" href="../lib/css/TableTools.css">-->
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="../lib/css/jquery.fileupload.css">
+    <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js"></script>-->
+    <script type="text/javascript" src="../lib/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="../lib/js/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="../lib/js/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="../lib/js/jquery.fileupload.js"></script>
+    <!--<script type="text/javascript" src="../lib/js/ZeroClipboard.js"></script>-->
+    <!--<script type="text/javascript" src="../lib/js/TableTools.js"></script>-->
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="task_registration.js"></script>
+    <script type="text/javascript" src="job_files.js"></script>
+    <script type="text/javascript" src="util.js"></script>
+    <script type="text/javascript" src="table.js"></script>
+    <script type="text/javascript" src="jobs_table.js"></script>
+    <script type="text/javascript" src="tasks_table.js"></script>
+</head>
+
+
+<body class="container-fluid">
+<div id="mainHeader" class="row">
+    <div class="col-lg-6">
+        <h2>Dexen Jobs</h2>
+    </div>
+    <div class="col-lg-6">
+        <a id="logoutBtn" href="/logout" class="btn btn-primary pull-right">Logout</a>
+        <button id="adminBtn" class="btn btn-primary pull-right">Admin</button>
+        <button id="jobsBtn" class="btn btn-primary pull-right">Jobs</button>
+        <span id="loggedInName" class="pull-right">{{username}} logged in</span>
+    </div>
+</div>
+
+<div id="jobsContainer" class="well">
+    <div class="row">
+        <div class="col-lg-6">
+            <label>Job: </label>
+            <span></span>
+        </div>
+        <div class="col-lg-6">
+            <button id="exportJobBtn" class="btn btn-primary pull-right">Export</button>
+            <button id="importJobBtn" class="btn btn-primary pull-right">Import</button>
+            <button id="deleteJobBtn" class="btn btn-primary pull-right">Delete</button>
+            <button id="stopJobBtn" class="btn btn-primary pull-right">Stop</button>
+            <button id="runJobBtn" class="btn btn-primary pull-right">Run</button>
+            <form role="form" class="form-inline pull-right">
+                <div class="form-group">
+                    <label for="jobNameTextBox" class="control-label">Job Name:</label>
+                    <input id="jobNameTextBox" type="text" class="form-control">
+                    <button id="createJobBtn" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table id="jobsTable" class="table table-bordered">
+        <tbody></tbody>
+    </table>
+    <div class="row">
+        <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
+        <input type="checkbox" name="autoRefresh"/> Auto Refresh
+        <button class="btn pull-right">Export As CSV</button>
+    </div>
+</div>
+
+<div>
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#tasksPane" data-toggle="tab">Tasks</a>
+        </li>
+        <li>
+            <a href="#executionsPane" data-toggle="tab">Executions</a>
+        </li>
+        <li>
+            <a href="#dataPane" data-toggle="tab">Data</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="tasksPane" class="tab-pane active">
+            <div class="well">
+                <div class="row">
+                    <label>Dataflow Task:</label>
+                    <button class="btn pull-right">Delete</button>
+                    <button id="deregisterDataflowTaskBtn" class="btn pull-right">De-Register</button>
+                    <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
+                </div>
+                <table id="dataflowTasksTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+                <div class="row">
+                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right">Export as CSV</button>
+                </div>
+            </div>
+
+            <div class="well">
+                <div class="row">
+                    <label class="control-label">Event Task:</label>
+                    <button class="btn pull-right">Delete</button>
+                    <button id="deregisterEventTaskBtn" class="btn pull-right">De-Register</button>
+                    <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
+                </div>
+                <table id="eventTasksTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+                <div class="row">
+                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right">Export as CSV</button>
+                </div>
+            </div>
+
+            <div class="well">
+                <div class="row">
+                    <label class="col-lg-4">File: </label>
+                    <div class="col-lg-8">
+                        <button id="downloadJobFileBtn" class="btn pull-right">Download</button>
+                        <button id="uploadJobFileBtn" class="btn pull-right">Upload</button>
+                    </div>
+                </div>
+                <table id="jobFilesTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+                <div class="row">
+                    <button id="refreshJobFilesBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right">Export as CSV</button>
+                </div>
+            </div>
+
+        </div>
+        <div id="executionsPane" class="tab-pane">
+            <table id="executionsTable" class="table table-bordered">
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="dataPane" class="tab-pane">
+            Data
+        </div>
+    </div>
+</div>
+
+<div id="eventTaskRegistrationModal" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4>Register Task</h4>
+            </div>
+            <div class="modal-body">
+                <form id="eventTaskRegistrationForm" class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="taskNameInput" class="col-lg-3 control-label">Task Name:</label>
+                        <div class="col-lg-9">
+                            <input  id="taskNameInput" type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmdArgsInput" class="col-lg-3 control-label">Cmd Args:</label>
+                        <div class="col-lg-9">
+                            <input id="cmdArgsInput" type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTypeInput" class="col-lg-3 control-label">Event Type:</label>
+                        <div class="col-lg-9">
+                            <select id="eventTypeInput" class="form-control">
+                                <option value="JobStartedEvent">Job Started</option>
+                                <option value="JobStoppedEvent">Job Stopped</option>
+                                <option value="PeriodicTimeEvent">Periodic</option>
+                                <option value="OneShotTimeEvent">One Shot</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="periodicTimeFormGroup" class="form-group">
+                        <label for="periodicTimeInput" class="col-lg-3 control-label">Period (seconds):</label>
+                        <div class="col-lg-9">
+                            <input id="periodicTimeInput" type="number" min="1" class="form-control"/>
+                        </div>
+                    </div>
+                    <div id="oneShotTimeFormGroup" class="form-group">
+                        <label for="oneShotTimeInput" class="col-lg-3 control-label">After (seconds):</label>
+                        <div class="col-lg-9">
+                            <input id="oneShotTimeInput" type="number" min="1" class="form-control"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal">Cancel</button>
+                <button id="eventTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dataflowTaskRegistrationModal" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4>Register Dataflow Task</h4>
+            </div>
+            <div class="modal-body">
+                <form id="dataflowTaskRegistrationForm" class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="dataflowTaskNameInput" class="col-lg-3 control-label">Task Name:</label>
+                        <div class="col-lg-9">
+                            <input  id="dataflowTaskNameInput" type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataflowCmdArgsInput" class="col-lg-3 control-label">Cmd Args:</label>
+                        <div class="col-lg-9">
+                            <input id="dataflowCmdArgsInput" type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataflowTaskConditionTextArea" class="col-lg-3 control-label">Condition:</label>
+                        <div class="col-lg-9">
+                            <textarea id="dataflowTaskConditionTextArea" form="dataflowTaskRegistrationForm"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataflowTaskInputSizeInput" class="col-lg-3 control-label">Input Size:</label>
+                        <div class="col-lg-9">
+                            <input id="dataflowTaskInputSizeInput" type="number" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal">Cancel</button>
+                <button id="dataflowTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fileUploadModal" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4>File Upload</h4>
+            </div>
+            <div class="modal-body">
+                    <span class="btn btn-success fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Add files...</span>
+                        <input id="filePathInput" type="file" name="files[]" multiple>
+                    </span>
+                <div id="uploadsArea">
+                    <div class="row upload-entry">
+                        <div class="col-lg-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <button class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+
+</html>

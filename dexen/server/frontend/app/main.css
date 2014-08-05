@@ -1,0 +1,51 @@
+
+
+.btn {
+    margin: 5px;
+}
+
+#loggedInName {
+    line-height: 44px;
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+#mainHeader .btn {
+    margin: 5px;
+}
+
+.row {
+    margin: 0px;
+}
+
+#jobsContainer .btn {
+
+}
+
+tbody {
+    height: 100px;
+}
+
+#createJobDiv {
+    position: absolute;
+    left: 40%;
+    top: 40%;
+    display: none;
+    z-index: 150;
+}
+
+.row-selected {
+    background-color: palevioletred;
+}
+
+#periodicTimeFormGroup, #oneShotTimeFormGroup {
+    display: none;
+}
+
+.progress-bar {
+    width:0%;
+}
+
+.upload-entry {
+    display: none;
+}

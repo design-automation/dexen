@@ -1,0 +1,290 @@
+
+#periodEventDiv {
+	display: none;
+}
+
+#oneshotEventDiv {
+	display: none;
+}
+
+#createJobDiv {
+	display: none;
+}
+
+#createJobDiv label {
+	display: block;
+	float: left;
+	width: 125px;
+	clear: left;
+}
+
+#createJobDiv input {
+	display: block;
+	float: left;
+}
+
+#createJobDiv button {
+	display: block;
+	float: right;
+	clear: left;
+	margin-top: 10px;
+}
+
+
+#uploadCodeDiv label {
+	display: block;
+	float: left;
+	width: 100px;
+	clear: left;
+}
+
+#uploadCodeDiv input[type="file"]{
+	display: block;
+	float: left;
+	width: 180px;
+}
+
+#uploadCodeDiv input[type="submit"] {
+	float: right;
+	clear: left;
+	margin-top: 10px;
+}
+
+
+#registerTaskDiv label {
+	display: block;
+	float: left;
+	width: 125px;
+	clear: left;
+}
+
+#registerTaskDiv input, select {
+	display: block;
+	float: left;
+}
+
+#registerTaskDiv input {
+	width: 180px;
+}
+
+#registerTaskDiv button {
+	display: block;
+	float: right;
+	clear: left;
+	margin-top: 10px;
+}
+
+#registerTaskDiv {
+	display: none;
+}
+
+#lightboxOverlay {
+	background: black;
+	opacity: 0.7;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 100;
+	display: none;
+}
+
+#lightbox {
+	position: absolute;
+	left: 40%;
+	top: 40%;
+	display: none;
+	z-index: 150;
+	background: rgb(235, 224, 224);
+	padding: 10px;
+}
+
+#lightbox > img {
+	float: right;
+	position: absolute;
+	top: -20px;
+	right: -20px;
+	width: 36px;
+	height: 36px;
+}
+
+#lightboxHeader {
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+ul {
+	list-style-type: none;
+}
+
+
+#jobsDiv {
+	width: 50%;
+	background: #B8B8B8;
+	margin: 10px;
+}
+
+#jobsDivHeader {
+	height: 30px;
+}
+
+#jobsDivHeader span {
+	line-height: 30px;
+	margin-left: 6px;
+}
+
+#jobsDivHeader button {
+	margin-top: 6px;
+	margin-right: 6px;
+}
+
+#createJobBtn, #refreshJobBtn {
+	float: right;
+}
+
+#jobs {
+	/*background: #FFCCCC;*/
+	padding-left: 0px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+#jobs > li {
+	margin-top: 5px;
+}
+
+.jobHeader {
+	background: #CBD4D4;
+	height: 24px;
+	display: block;
+	padding: 6px;
+	margin: 5px;
+}
+
+.jobHeader span {
+	display: inline;
+	line-height: 24px;
+}
+
+.jobHeader button {
+	float: right;
+}
+
+/*
+.jobTitle button {
+	margin-top: 6px;
+	margin-right: 6px;
+}
+*/
+
+.tasksDiv {
+	background: rgb(238, 238, 238);
+	margin: 5px;
+}
+
+.taskInfo {
+	background: #CBD4D4;
+	margin: 5px;
+	padding: 6px;
+	height: 150px;
+}
+
+.taskInfo .deregisterBtn {
+	margin-top: 20px;
+	float: right;
+}
+
+.taskInfo span {
+	display: inline-block;
+}
+
+.taskInfo span:first-child {
+	width: 140px;	
+}
+
+.taskInfo span:last-child {
+	clear: right;
+	width: 180px;
+}
+
+
+#header {
+	height: 30px;
+	background: #CBD4D4;
+	padding: 8px;
+}
+
+#header a {
+	display: block;
+	float: right;
+	margin: 0px;
+	margin-left: 10px;
+}
+
+#header #userName {
+	float: right;
+}
+
+.tasks {
+	padding-left: 0px;
+	white-space: nowrap;
+	overflow-x: scroll;
+	overflow-y: hidden;
+}
+
+.tasks li {
+	margin-left: 0px;
+	width: 390px;
+	display: inline-block;
+}
+
+body {
+	display: -webkit-box;
+	-webkit-box-orient: vertical; 
+}
+
+.mainContent {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+}
+
+#executionsDiv {
+	margin: 10px;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-box-flex: 1;
+}
+
+#executionsHeader {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	-webkit-box-pack: end;
+	padding: 6px 0px 6px 0px;	
+}
+
+#executionsHeader > span {
+	-webkit-box-flex: 1;
+	display: block;
+}
+
+#executionsTable {
+	width: 100%;
+}
+
+#executionsTable tbody {
+	width: 100%;
+	height: 500px;
+	overflow-y: auto;
+	display: block;
+}
+
+#executionsTable thead {
+	display: block;
+}
+
+#executionsTable thead th {
+	width: 100px
+}
+
+#executionsTable tr td {
+	width: 100px;
+}

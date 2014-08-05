@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <style>
+        form {
+            width: 400px;
+            margin: auto;
+        }
+        div.well {
+            width: 450px;
+            margin: auto;
+            margin-top: 200px;
+            padding-bottom: 0px;
+        }
+        #loginBtn {
+            margin-right: 15px;
+        }
+        #loginHeader {
+            margin-top: 0px;
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+        #registerLink {
+            line-height: 44px;
+            text-decoration: underline;
+        }
+    </style>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</head>
+
+<body class="container">
+    <div class="well">
+        <h3 id="loginHeader">Dexen Login</h3>
+        <form id="loginForm" action="/login" method="post" class="form-horizontal">
+            <div class="form-group">
+                <label for="usernameInput" class="col-lg-3 control-label">Username:</label>
+                <div class="col-lg-9">
+                    <input id="usernameInput" name="username" type="text" class="form-control" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="passwordInput" class="col-lg-3 control-label">Password:</label>
+                <div class="col-lg-9">
+                    <input id="passwordInput" name="password" type="password" class="form-control" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <input id="loginBtn" name="login" type="submit" value="Login" class="pull-right btn btn-primary" />
+                <a id="registerLink" href="/register" class="pull-right">Register</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
