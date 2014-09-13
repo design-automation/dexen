@@ -598,3 +598,15 @@ class JobDataManager(object):
             self.coll.update({"_id": modified_id.get_value()}, doc)
         self.logger.debug("Removing execution ids.")
         self.remove_execution_ids(modified_ids, execution_id)
+
+    def get_all_data(self):
+        result = []
+        for data in self.coll.find({}, fields={ATTRS_BEING_MODIFIED : False, FIELD_ROLLBACK : False}):
+            result.append(data)
+        return result
+
+    def get_data_value(self, data_id, attr_name):
+        res = self.coll.find_one(data_id, fields=[attr_name])
+        if not res is None:
+            return res.get(attr_name)
+        return None

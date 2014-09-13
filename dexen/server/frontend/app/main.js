@@ -112,4 +112,6 @@ $(document).ready(function() {
     setupFilesTable();
     setupJobActions();
     setupTasksRegistration();
+    setupExecutionsTable();
+    setupJobDataTable();
 });

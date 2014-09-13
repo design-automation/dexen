@@ -49,3 +49,8 @@ tbody {
 .upload-entry {
     display: none;
 }
+
+.clear {
+    clear: both;
+    height: 0;
+}

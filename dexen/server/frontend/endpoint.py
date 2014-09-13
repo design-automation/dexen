@@ -30,6 +30,9 @@ from flask.json import jsonify
 from flask.templating import render_template
 import pymongo
 
+from bson.binary import Binary
+from bson.objectid import ObjectId
+
 from dexen.common import db, task
 from dexen.server.frontend import app, login_mgr, form as dexen_form, proxy
 
@@ -159,6 +162,51 @@ def download_file(job_name, file_name):
     f.close()
     response = make_response(content)
     response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
+    return response
+
+@app.route("/data/<job_name>", methods=["GET"])
+@login_required
+def get_data(job_name):
+    DATA_ID = "_id"
+    BINARY_KEYS = "keys"
+
+    logger.info("Getting all data for job: %s", job_name)
+    data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+    all_data = data_mgr.get_all_data()
+    metadata = []
+    for data in all_data:
+        keysWithBinaryVal = []
+        rec = {}
+        for key,val in data.items():
+            if isinstance(val, Binary):
+                data[key] = ""
+                keysWithBinaryVal.append(key)
+
+        if len(keysWithBinaryVal) != 0:
+            rec[BINARY_KEYS] = keysWithBinaryVal
+            rec[DATA_ID] = str(data["_id"])
+
+        metadata.append(rec)
+        data.pop(DATA_ID)
+
+    return jsonify(data=all_data, metadata=metadata)
+
+@app.route("/data/<job_name>/<data_id>/<attr_name>", methods=["GET"])
+@login_required
+def download_data(job_name, data_id, attr_name):
+    logger.info("Getting data for job: %s, id: %s, attr: %s", job_name, data_id, attr_name)
+    data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+    val = data_mgr.get_data_value(ObjectId(data_id), attr_name)
+
+    if val is None:
+        return make_response("Data not found", 400, None)
+
+    if not isinstance(val, Binary):
+        return make_response("Unsupported data type", 400, None)
+
+    response = make_response(val)
+    response.headers["Content-Disposition"] = "attachment; filename={0}.{1}.{2}".format(job_name, data_id, attr_name)
+
     return response
 
 
