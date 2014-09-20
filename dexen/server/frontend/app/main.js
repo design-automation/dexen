@@ -72,6 +72,7 @@ function refreshJobFiles() {
 }
 
 function setupJobActions() {
+    var $jobNameTextBox = $('#jobNameTextBox');
     var $createJobBtn = $('#createJobBtn');
     var $runJobBtn = $('#runJobBtn');
     var $stopJobBtn = $('#stopJobBtn');
@@ -79,6 +80,12 @@ function setupJobActions() {
     var $refreshJobFilesBtn = $('#refreshJobFilesBtn');
     var $refreshEventTasksBtn = $('#refreshEventTasksBtn');
     var $refreshDataflowTasksBtn = $('#refreshDataflowTasksBtn');
+
+    $jobNameTextBox.keypress(function(event) {
+        if ( event.which == 13 ) {
+            $createJobBtn.trigger('click');
+        }
+    });
 
     $createJobBtn.click(function() {
         var jobName = $('#jobNameTextBox').val();
