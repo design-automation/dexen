@@ -28,9 +28,9 @@ function refreshJobDataTable() {
         										return function(cellData, type, row, meta){
         											if(type == "display" && typeof(cellData) == "string"){        												
         												var metadata = data.metadata[meta.row];
-										        		if(metadata.hasOwnProperty(BINARY_KEYS) && metadata.hasOwnProperty(DATA_ID)){
+										        		if(metadata.hasOwnProperty(BINARY_KEYS)){
 										        			if(metadata[BINARY_KEYS].indexOf(localKey) != -1){
-										        				var dataId = metadata[DATA_ID];										        			
+										        				var dataId = row[DATA_ID];										        			
 										        				var url = "/data/" + encodeURIComponent(jobName) + "/" + encodeURIComponent(dataId) + "/" + encodeURIComponent(localKey);
 																return "<a href='" + url + "'>Download</a>";
 										        			}										        			
