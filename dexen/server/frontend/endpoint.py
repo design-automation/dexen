@@ -167,7 +167,6 @@ def download_file(job_name, file_name):
 @app.route("/data/<job_name>", methods=["GET"])
 @login_required
 def get_data(job_name):
-    DATA_ID = "_id"
     BINARY_KEYS = "keys"
 
     logger.info("Getting all data for job: %s", job_name)
@@ -181,13 +180,13 @@ def get_data(job_name):
             if isinstance(val, Binary):
                 data[key] = ""
                 keysWithBinaryVal.append(key)
+            elif isinstance(val, ObjectId):
+                data[key] = str(val)
 
         if len(keysWithBinaryVal) != 0:
             rec[BINARY_KEYS] = keysWithBinaryVal
-            rec[DATA_ID] = str(data["_id"])
 
         metadata.append(rec)
-        data.pop(DATA_ID)
 
     return jsonify(data=all_data, metadata=metadata)
 
