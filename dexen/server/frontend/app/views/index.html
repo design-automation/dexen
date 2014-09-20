@@ -86,49 +86,23 @@
 <div>
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#tasksPane" data-toggle="tab">Tasks</a>
+            <a href="#filesPane" data-toggle="tab">Files</a>
+        </li>
+        <li>
+            <a href="#eventTasksPane" data-toggle="tab">Event Tasks</a>
+        </li>
+        <li>
+            <a href="#dataflowTasksPane" data-toggle="tab">Dataflow Tasks</a>
         </li>
         <li>
             <a href="#executionsPane" data-toggle="tab">Executions</a>
         </li>
         <li>
-            <a href="#dataPane" data-toggle="tab">Data</a>
+            <a href="#dataPane" data-toggle="tab">Data Objects</a>
         </li>
     </ul>
     <div class="tab-content">
-        <div id="tasksPane" class="tab-pane active">
-            <div class="well">
-                <div class="row">
-                    <label>Dataflow Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterDataflowTaskBtn" class="btn pull-right">De-Register</button>
-                    <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
-                </div>
-                <table id="dataflowTasksTable" class="table table-bordered">
-                    <tbody></tbody>
-                </table>
-                <div class="row">
-                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
-                </div>
-            </div>
-
-            <div class="well">
-                <div class="row">
-                    <label class="control-label">Event Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterEventTaskBtn" class="btn pull-right">De-Register</button>
-                    <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
-                </div>
-                <table id="eventTasksTable" class="table table-bordered">
-                    <tbody></tbody>
-                </table>
-                <div class="row">
-                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
-                </div>
-            </div>
-
+        <div id="filesPane" class="tab-pane active">
             <div class="well">
                 <div class="row">
                     <label class="col-lg-4">File: </label>
@@ -146,6 +120,40 @@
                 </div>
             </div>
 
+        </div>
+        <div id="eventTasksPane" class="tab-pane">
+            <div class="well">
+                <div class="row">
+                    <label class="control-label">Event Task:</label>
+                    <button class="btn pull-right">Delete</button>
+                    <button id="deregisterEventTaskBtn" class="btn pull-right">De-Register</button>
+                    <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
+                </div>
+                <table id="eventTasksTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+                <div class="row">
+                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right">Export as CSV</button>
+                </div>
+            </div>
+        </div>
+        <div id="dataflowTasksPane" class="tab-pane">
+            <div class="well">
+                <div class="row">
+                    <label>Dataflow Task:</label>
+                    <button class="btn pull-right">Delete</button>
+                    <button id="deregisterDataflowTaskBtn" class="btn pull-right">De-Register</button>
+                    <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
+                </div>
+                <table id="dataflowTasksTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+                <div class="row">
+                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right">Export as CSV</button>
+                </div>
+            </div>
         </div>
         <div id="executionsPane" class="tab-pane">
             <div class="well">
