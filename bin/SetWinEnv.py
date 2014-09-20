@@ -71,7 +71,7 @@ platform = platform.architecture()[0]
 
 setenv_add_paths("DEXEN", [dexen_dir])
 
-libs_dir = dexen_dir + "\\libs"
+libs_dir = dexen_dir + "\\libs\\python"
 setenv_add_paths("PYTHONPATH", [dexen_dir, libs_dir])
 
 bin_dir = dexen_dir + "\\bin"
