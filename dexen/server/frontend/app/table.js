@@ -3,10 +3,16 @@
  */
 
 
+function getSelectedRow($table) {
+    return $table.find('tr.row-selected');
+}
 
+function selectRow($tr){
+    $tr.addClass('row-selected');
+}
 
 function getDataFromSelectedRow($table, colIndex) {
-    var $tr = $table.find('tr.row-selected');
+    var $tr = getSelectedRow($table);
     var $td = $tr.children().eq(colIndex);
     console.log("Selected data at column %d is %s", colIndex, $td.text());
     return $td.text();
