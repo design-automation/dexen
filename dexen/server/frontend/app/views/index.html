@@ -27,7 +27,6 @@
     
     <!--<script type="text/javascript" src="../lib/js/ZeroClipboard.js"></script>-->
     <!--<script type="text/javascript" src="../lib/js/TableTools.js"></script>-->
-    <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="task_registration.js"></script>
     <script type="text/javascript" src="job_files.js"></script>
     <script type="text/javascript" src="util.js"></script>
@@ -36,6 +35,7 @@
     <script type="text/javascript" src="tasks_table.js"></script>
     <script type="text/javascript" src="executions.js"></script>
     <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 </head>
 
 
@@ -85,24 +85,24 @@
 
 <div>
     <ul class="nav nav-tabs">
-        <li class="active">
+        <li class="disabled">
             <a href="#filesPane" data-toggle="tab">Files</a>
         </li>
-        <li>
+        <li class="disabled">
             <a href="#eventTasksPane" data-toggle="tab">Event Tasks</a>
         </li>
-        <li>
+        <li class="disabled">
             <a href="#dataflowTasksPane" data-toggle="tab">Dataflow Tasks</a>
         </li>
-        <li>
+        <li class="disabled">
             <a href="#executionsPane" data-toggle="tab">Executions</a>
         </li>
-        <li>
+        <li class="disabled">
             <a href="#dataPane" data-toggle="tab">Data Objects</a>
         </li>
     </ul>
     <div class="tab-content">
-        <div id="filesPane" class="tab-pane active">
+        <div id="filesPane" class="tab-pane">
             <div class="well">
                 <div class="row">
                     <label class="col-lg-4">File: </label>

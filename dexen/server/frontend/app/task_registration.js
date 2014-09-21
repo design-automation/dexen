@@ -19,7 +19,8 @@ function updateTasksTable($table, tasks) {
     $.each(tasks, function(index, task) {
         task['registration_time'] = timestampToDateString(task['registration_time']);
     });
-    $table.dataTable().fnAddData(tasks);
+    if(tasks.length > 0)
+        $table.dataTable().fnAddData(tasks);
 }
 
 function refreshEventTasksTable() {

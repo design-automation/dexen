@@ -26,6 +26,13 @@ function updateJobBtns($tr) {
     var status = getCurrentJobStatusFromTable();
     $('#runJobBtn').disable(status !== 'STOPPED');
     $('#stopJobBtn').disable(status === 'STOPPED');
+
+    var $li = $("ul.nav-tabs li.active");
+    if($li.length > 0){
+        var $a = $($li.find("a:first"));        
+        var href = $a.attr("href");
+        tabContents[href].onChange(getCurrentJobNameFromTable());
+    }
 }
 
 function setupJobsTable() {
@@ -63,8 +70,11 @@ function ReselectJobRow($table){
                 $tr = $td.parent();
                 selectRow($tr);
                 updateJobBtns($tr);
+
+                return jobName;
             }
         }
+        return null;
     }
 }
 
@@ -82,5 +92,23 @@ function updateJobsTable(jobs) {
     });
     $jobsTable.dataTable().fnAddData(jobs);
 
-    reselectJobRow.reselect();
+    var jobName = reselectJobRow.reselect();
+
+    if(jobName == null){
+        if(jobs.length == 0){
+            $("ul.nav-tabs li").addClass("disabled");
+            $("div.tab-content div.tab-pane").removeClass("active");
+            return;
+        } else{
+            jobName = jobs[0]['job_name'];
+            selectRow($jobsTable.find("tr:first"));
+        }
+    }
+
+    var $li = $("ul.nav-tabs li");
+    $li.removeClass("disabled");
+        
+    if($("div.tab-content div.tab-pane.active").length == 0){
+        $li.first().find("a:first").tab("show");
+    }
 }

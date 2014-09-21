@@ -63,7 +63,8 @@ function updateJobFilesTable(files) {
     $.each(files, function(index, file) {
         file['upload_time'] = timestampToDateString(file['upload_time']);
     });
-    $jobFilesTable.dataTable().fnAddData(files);
+    if(files.length > 0)
+        $jobFilesTable.dataTable().fnAddData(files);
 }
 
 function setupFilesTable() {

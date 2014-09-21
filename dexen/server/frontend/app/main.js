@@ -111,6 +111,42 @@ function setupJobActions() {
     })
 }
 
+function TabContent(fnRefreshTable){
+    this.curJobName = null;
+    this.refreshTable = fnRefreshTable;
+    this.onChange = function(jobName){
+        if(this.curJobName != jobName){
+            this.curJobName = jobName;
+            this.refreshTable();
+        }
+    };
+}
+
+
+var tabContents = {
+    "#filesPane" : new TabContent(refreshJobFiles),
+    "#eventTasksPane" : new TabContent(refreshEventTasksTable),
+    "#dataflowTasksPane" : new TabContent(refreshDataflowTasksTable),
+    "#executionsPane" : new TabContent(refreshExecutionsTable),
+    "#dataPane" : new TabContent(refreshJobDataTable)
+};
+
+function setupTabs(){
+    var $tabs = $(".nav-tabs a[data-toggle=tab]");
+    $tabs.on("click", function(e) {
+        $li = $(this).parent();
+        if ($li.hasClass("disabled")) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $tabs.on('shown.bs.tab', function (e) {
+        var $a = $(e.target);        
+        var href = $a.attr("href");
+        tabContents[href].onChange(getCurrentJobNameFromTable());
+    })
+}
 
 $(document).ready(function() {
     console.log('The document is ready');
@@ -121,4 +157,7 @@ $(document).ready(function() {
     setupTasksRegistration();
     setupExecutionsTable();
     setupJobDataTable();
+    setupTabs();
+
+    refreshJobs();
 });

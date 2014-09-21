@@ -51,11 +51,13 @@ function refreshJobDataTable() {
 			    $table.DataTable().destroy();
 			}
 
-        	$table.dataTable({
-        		"data" : data.data,
-        		"columns" : columns,
-        		"dom": 'RC<"clear">lfrtip'
-        	});
+            if(columns.length > 0){
+            	$table.dataTable({
+            		"data" : data.data,
+            		"columns" : columns,
+            		"dom": 'RC<"clear">lfrtip'
+            	});
+            }
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
