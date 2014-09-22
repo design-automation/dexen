@@ -76,8 +76,6 @@ function refreshJobDataTable() {
                 definition = createDefaultJobDataTableDefinition();
             }
 
-            console.log(definition);
-
             createJobDataTable(definition);
 
         },
