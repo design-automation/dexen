@@ -90,7 +90,8 @@ function updateJobsTable(jobs) {
         job['start_time'] = timestampToDateString(job['start_time']);
         job['stop_time'] = timestampToDateString(job['stop_time']);
     });
-    $jobsTable.dataTable().fnAddData(jobs);
+    if(jobs.length > 0)
+        $jobsTable.dataTable().fnAddData(jobs);
 
     var jobName = reselectJobRow.reselect();
 
