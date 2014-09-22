@@ -61,16 +61,6 @@ function refreshJobs() {
     });
 }
 
-function refreshJobFiles() {
-    var url = "/files_metadata/" + getCurrentJobNameFromTable();
-    var xhr = $.getJSON(url);
-
-    xhr.done(function(data) {
-        console.log('Job files metadata has been received jobs files metadata: ' + data.files_metadata);
-        updateJobFilesTable(data.files_metadata);
-    });
-}
-
 function setupJobActions() {
     var $jobNameTextBox = $('#jobNameTextBox');
     var $createJobBtn = $('#createJobBtn');
