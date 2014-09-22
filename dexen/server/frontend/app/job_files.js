@@ -72,8 +72,15 @@ function refreshJobFiles() {
     var xhr = $.getJSON(url);
 
     xhr.done(function(data) {
-        console.log('Job files metadata has been received jobs files metadata: ' + data.files_metadata);
-        updateJobFilesTable(data.files_metadata);
+        $('#downloadJobFileBtn').disable(true);
+        if(data == null){
+            updateJobFilesTable([]);
+        }
+        else{
+            console.log('Job files metadata has been received jobs files metadata: ' + data.files_metadata);
+            updateJobFilesTable(data.files_metadata);
+            
+        }        
     });
 }
 
@@ -98,7 +105,7 @@ function setupFilesTable() {
     });
 
     setupTable($jobFilesTable, function($tr) {
-        console.log('job files table row selected callback.');
+        $downloadJobFileBtn.disable(false);
     });
 
     $downloadJobFileBtn.click(function() {

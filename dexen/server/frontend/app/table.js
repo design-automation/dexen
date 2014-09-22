@@ -20,11 +20,15 @@ function getDataFromSelectedRow($table, colIndex) {
 
 function setupTable($table, fnSelectedCallback) {
     $table.find('tbody').click(function(event) {
-        console.log('Event target %s', event.target);
-        var $td = $(event.target);
-        $table.find('tr.row-selected').removeClass('row-selected');
-        var $tr = $td.parent('tr');
-        $tr.addClass('row-selected');
-        fnSelectedCallback($tr);
+        if($.fn.dataTable.isDataTable($table)){
+            if($table.DataTable().rows().data().length > 0){
+                console.log('Event target %s', event.target);
+                var $td = $(event.target);
+                $table.find('tr.row-selected').removeClass('row-selected');
+                var $tr = $td.parent('tr');
+                $tr.addClass('row-selected');
+                fnSelectedCallback($tr);
+            }
+        }
     });
 }
