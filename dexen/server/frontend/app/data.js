@@ -1,3 +1,20 @@
+function createDefaultJobDataTableDefinition() {
+    return {    
+                "data" : [],
+                "columns" : [{"title" : "_id", "data" : "_id"}],
+                "dom": 'RC<"clear">lfrtip'
+            };
+}
+
+function createJobDataTable(definition) {
+    var $table = $('#jobDataTable');
+    if ( $.fn.dataTable.isDataTable($table) ) {
+        $table.DataTable().destroy();
+        $table.empty();
+    }
+    $table.dataTable(definition);
+}
+
 function refreshJobDataTable() {
 	var jobName = getCurrentJobNameFromTable();
 	if(!jobName){
@@ -23,9 +40,10 @@ function refreshJobDataTable() {
         				attrSet[key] = true;
         				columns.push(
         					{	"title" : escapeHtml(key), 
-        						"data" : key, 
+        						"data" : null, 
         						"render" : (function(localKey){
-        										return function(cellData, type, row, meta){
+        										return function(allData, type, row, meta){
+                                                    var cellData = row[localKey];
         											if(type == "display" && typeof(cellData) == "string"){        												
         												var metadata = data.metadata[meta.row];
 										        		if(metadata.hasOwnProperty(BINARY_KEYS) && metadata.hasOwnProperty(DATA_ID)){
@@ -46,22 +64,24 @@ function refreshJobDataTable() {
         		});
         	}
 
-        	var $table = $('#jobDataTable');
-        	if ( $.fn.dataTable.isDataTable($table) ) {
-			    $table.DataTable().destroy();
-			}
+            var definition = null;
 
-            if(columns.length > 0){
-            	$table.dataTable({
-            		"data" : data.data,
-            		"columns" : columns,
-            		"dom": 'RC<"clear">lfrtip'
-            	});
+        	if(columns.length > 0){
+            	definition =   {
+                        		  "data" : data.data,
+                        		  "columns" : columns,
+                        		  "dom": 'RC<"clear">lfrtip'
+                        	   };
+            } else{
+                definition = createDefaultJobDataTableDefinition();
             }
+
+            createJobDataTable(definition);
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
         	alert("Unable to get job data. Status: " + textStatus);
+            createJobDataTable(createDefaultJobDataTableDefinition());
         }
     })
 }

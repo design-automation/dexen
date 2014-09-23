@@ -24,17 +24,23 @@ function refreshExecutionsTable() {
 	var ajaxUrl = '/executions/' + jobName;
 	console.log('Loading executions table from ' + ajaxUrl);
 
+	var table = $('#executionsTable').DataTable();
+	table
+		.clear()
+		.draw();
+
 	$.ajax({
         type: "GET",
         url: ajaxUrl,
         dataType: "json",
         success: function (data) {
-			var table = $('#executionsTable').DataTable();
 			table
-				.clear()
 				.rows.add(data.executions)
 				.draw();
-		}
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+        	alert("Unable to get executions. Status: " + textStatus);
+        }
 	});
 }
 

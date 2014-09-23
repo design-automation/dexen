@@ -22,17 +22,19 @@ var jobsTableColsIndex = {
     STOP_TIME: 4
 };
 
-function updateJobBtns($tr) {
-    var status = getCurrentJobStatusFromTable();
-    $('#runJobBtn').disable(status !== 'STOPPED');
-    $('#stopJobBtn').disable(status === 'STOPPED');
-
+function updateActivePane(){
     var $li = $("ul.nav-tabs li.active");
     if($li.length > 0){
         var $a = $($li.find("a:first"));        
         var href = $a.attr("href");
         tabContents[href].onChange(getCurrentJobNameFromTable());
     }
+}
+
+function updateJobBtns($tr) {
+    var status = getCurrentJobStatusFromTable();
+    $('#runJobBtn').disable(status !== 'STOPPED');
+    $('#stopJobBtn').disable(status === 'STOPPED');
 }
 
 function setupJobsTable() {
@@ -51,7 +53,10 @@ function setupJobsTable() {
         ]
     });
 
-    setupTable($jobsTable, updateJobBtns);
+    setupTable($jobsTable, function($tr){
+        updateJobBtns($tr);
+        updateActivePane();
+    });
 }
 
 function ReselectJobRow($table){
@@ -90,7 +95,8 @@ function updateJobsTable(jobs) {
         job['start_time'] = timestampToDateString(job['start_time']);
         job['stop_time'] = timestampToDateString(job['stop_time']);
     });
-    $jobsTable.dataTable().fnAddData(jobs);
+    if(jobs.length > 0)
+        $jobsTable.dataTable().fnAddData(jobs);
 
     var jobName = reselectJobRow.reselect();
 
@@ -101,7 +107,9 @@ function updateJobsTable(jobs) {
             return;
         } else{
             jobName = jobs[0]['job_name'];
-            selectRow($jobsTable.find("tr:first"));
+            $tr = $jobsTable.find("tr:first");
+            selectRow($tr);
+            updateJobBtns($tr);
         }
     }
 
