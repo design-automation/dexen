@@ -19,24 +19,25 @@
 #
 # ==================================================================================================
 """
-Reads a file.
+Sets some data.
 
-The condition for this task should look something like this:
+The condition for this task is as follows:
 
 {
-    "data1":{"$exists":True},
-    "data2":{"$exists":False}
+    "init_data": { "$exists" : true },
+    "data1": { "$exists" : false }
 }
 
 Note that in Javascript you need to use 'true'and 'false'.
 """
-
+from bson.binary import Binary
 from dexen_libs.api import data_api
 
-print "read file"
+print "set data"
 
 data_objects = data_api.GetAssignedDataObjects()
 
 for do in data_objects:
-    value = float(do.get_value("data1")) #this reads the file
-    do.set_value("data2", value * 2)
+    init_data = do.get_value("init_data")
+    total = str(sum(init_data))
+    do.set_value("data1", total)

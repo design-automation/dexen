@@ -19,7 +19,7 @@
 #
 # ==================================================================================================
 """
-Reads a file.
+Gets some data.
 
 The condition for this task should look something like this:
 
@@ -33,10 +33,10 @@ Note that in Javascript you need to use 'true'and 'false'.
 
 from dexen_libs.api import data_api
 
-print "read file"
+print "get data"
 
 data_objects = data_api.GetAssignedDataObjects()
 
 for do in data_objects:
-    value = float(do.get_value("data1")) #this reads the file
+    value = do.get_value("data1")
     do.set_value("data2", value * 2)
