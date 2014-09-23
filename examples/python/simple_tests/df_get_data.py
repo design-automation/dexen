@@ -19,33 +19,24 @@
 #
 # ==================================================================================================
 """
-Strat a dexen server backend.
+Gets some data.
+
+The condition for this task should look something like this:
+
+{
+    "data1":{"$exists":True},
+    "data2":{"$exists":False}
+}
+
+Note that in Javascript you need to use 'true'and 'false'.
 """
 
-import argparse
+from dexen_libs.api import data_api
 
-import dexen
-from dexen.common import remoting, constants, utils
-from dexen.server.backend import endpoint
+print "get data"
 
+data_objects = data_api.GetAssignedDataObjects()
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Start Node")
-    parser.add_argument("--log-path", help="log file path.")
-    parser.add_argument("--db-ip", default=remoting.get_my_ip(),
-                        help="The database ip address.")
-    parser.add_argument("--db-port", type=int,
-                        default=constants.MONGOD_PORT,
-                        help="The database port.")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    utils.setup_logging(args.log_path)
-    db_addr = remoting.EndPointAddress(args.db_ip, args.db_port)
-    endpoint.start(db_addr)
-
-
-if __name__ == '__main__':
-    main()
+for do in data_objects:
+    value = do.get_value("data1")
+    do.set_value("data2", value * 2)

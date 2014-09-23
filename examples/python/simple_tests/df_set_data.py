@@ -19,33 +19,25 @@
 #
 # ==================================================================================================
 """
-Strat a dexen server backend.
+Sets some data.
+
+The condition for this task is as follows:
+
+{
+    "init_data": { "$exists" : true },
+    "data1": { "$exists" : false }
+}
+
+Note that in Javascript you need to use 'true'and 'false'.
 """
+from bson.binary import Binary
+from dexen_libs.api import data_api
 
-import argparse
+print "set data"
 
-import dexen
-from dexen.common import remoting, constants, utils
-from dexen.server.backend import endpoint
+data_objects = data_api.GetAssignedDataObjects()
 
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Start Node")
-    parser.add_argument("--log-path", help="log file path.")
-    parser.add_argument("--db-ip", default=remoting.get_my_ip(),
-                        help="The database ip address.")
-    parser.add_argument("--db-port", type=int,
-                        default=constants.MONGOD_PORT,
-                        help="The database port.")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    utils.setup_logging(args.log_path)
-    db_addr = remoting.EndPointAddress(args.db_ip, args.db_port)
-    endpoint.start(db_addr)
-
-
-if __name__ == '__main__':
-    main()
+for do in data_objects:
+    init_data = do.get_value("init_data")
+    total = str(sum(init_data))
+    do.set_value("data1", total)
