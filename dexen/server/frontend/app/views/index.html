@@ -46,8 +46,8 @@
     </div>
     <div class="col-lg-6">
         <a id="logoutBtn" href="/logout" class="btn btn-primary pull-right">Logout</a>
-        <button id="adminBtn" class="btn btn-primary pull-right">Admin</button>
-        <button id="jobsBtn" class="btn btn-primary pull-right">Jobs</button>
+        <button id="adminBtn" class="btn btn-primary pull-right" disabled="disabled">Admin</button>
+        <button id="jobsBtn" class="btn btn-primary pull-right" disabled="disabled">Jobs</button>
         <span id="loggedInName" class="pull-right">{{username}} logged in</span>
     </div>
 </div>
@@ -59,9 +59,9 @@
             <span></span>
         </div>
         <div class="col-lg-10">
-            <button id="exportJobBtn" class="btn btn-primary pull-right">Export</button>
-            <button id="importJobBtn" class="btn btn-primary pull-right">Import</button>
-            <button id="deleteJobBtn" class="btn btn-primary pull-right">Delete</button>
+            <button id="exportJobBtn" class="btn btn-primary pull-right" disabled="disabled">Export</button>
+            <button id="importJobBtn" class="btn btn-primary pull-right" disabled="disabled">Import</button>
+            <button id="deleteJobBtn" class="btn btn-primary pull-right" disabled="disabled">Delete</button>
             <button id="stopJobBtn" class="btn btn-primary pull-right" disabled="disabled">Stop</button>
             <button id="runJobBtn" class="btn btn-primary pull-right" disabled="disabled">Run</button>
             <div role="form" class="form-inline pull-right">
@@ -78,8 +78,8 @@
     </table>
     <div class="row">
         <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
-        <input type="checkbox" name="autoRefresh"/> Auto Refresh
-        <button class="btn pull-right">Export As CSV</button>
+        <input type="checkbox" name="autoRefresh" disabled="disabled"/> Auto Refresh
+        <button class="btn pull-right" disabled="disabled">Export As CSV</button>
     </div>
 </div>
 
@@ -116,7 +116,7 @@
                 </table>
                 <div class="row">
                     <button id="refreshJobFilesBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                 </div>
             </div>
 
@@ -125,8 +125,8 @@
             <div class="well">
                 <div class="row">
                     <label class="control-label">Event Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterEventTaskBtn" class="btn pull-right">De-Register</button>
+                    <button class="btn pull-right" disabled="disabled">Delete</button>
+                    <button id="deregisterEventTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
                 </div>
                 <table id="eventTasksTable" class="table table-bordered">
@@ -134,7 +134,7 @@
                 </table>
                 <div class="row">
                     <button id="refreshEventTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                 </div>
             </div>
         </div>
@@ -142,8 +142,8 @@
             <div class="well">
                 <div class="row">
                     <label>Dataflow Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterDataflowTaskBtn" class="btn pull-right">De-Register</button>
+                    <button class="btn pull-right" disabled="disabled">Delete</button>
+                    <button id="deregisterDataflowTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
                 </div>
                 <table id="dataflowTasksTable" class="table table-bordered">
@@ -151,7 +151,7 @@
                 </table>
                 <div class="row">
                     <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                 </div>
             </div>
         </div>
