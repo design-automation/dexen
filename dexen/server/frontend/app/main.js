@@ -28,7 +28,7 @@ function createJob(jobName) {
 
     xhr.done(function() {
         console.log("/create_job post request is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
@@ -38,7 +38,7 @@ function runJob(jobName) {
 
     xhr.done(function() {
         console.log("Running job: " + jobName + "is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
@@ -48,16 +48,16 @@ function stopJob(jobName) {
 
     xhr.done(function() {
         console.log("Stopping job: " + jobName + "is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
-function refreshJobs() {
+function refreshJobs(jobName) {
     var xhr = $.getJSON('/jobs');
 
     xhr.done(function(data) {
         console.log('Downloading jobs successful, jobs data: ' + data['jobs']);
-        updateJobsTable(data.jobs);
+        updateJobsTable(data.jobs, jobName);
     });
 }
 

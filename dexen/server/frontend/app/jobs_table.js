@@ -59,10 +59,10 @@ function setupJobsTable() {
     });
 }
 
-function ReselectJobRow($table){
+function ReselectJobRow($table, curJobName){
     this.$table = $table;
-    this.jobName = null;
-    if(getSelectedRow($table).length > 0)
+    this.jobName = curJobName;
+    if(curJobName == null && getSelectedRow($table).length > 0)
         this.jobName = getDataFromSelectedRow($table, jobsTableColsIndex.JOB_NAME);
 
     this.reselect = function(){
@@ -83,11 +83,11 @@ function ReselectJobRow($table){
     }
 }
 
-function updateJobsTable(jobs) {
+function updateJobsTable(jobs, curJobName) {
     var $jobsTable = $('#jobsTable');
     console.log('Updating jobs %s', jobs);
 
-    var reselectJobRow = new ReselectJobRow($jobsTable);
+    var reselectJobRow = new ReselectJobRow($jobsTable, curJobName);
 
     $jobsTable.dataTable().fnClearTable();
     $.each(jobs, function(index, job) {
@@ -102,6 +102,7 @@ function updateJobsTable(jobs) {
 
     if(jobName == null){
         if(jobs.length == 0){
+            $("ul.nav-tabs li").removeClass("active");
             $("ul.nav-tabs li").addClass("disabled");
             $("div.tab-content div.tab-pane").removeClass("active");
             return;
@@ -115,6 +116,8 @@ function updateJobsTable(jobs) {
 
     var $li = $("ul.nav-tabs li");
     $li.removeClass("disabled");
+
+    updateActivePane();    
         
     if($("div.tab-content div.tab-pane.active").length == 0){
         $li.first().find("a:first").tab("show");
