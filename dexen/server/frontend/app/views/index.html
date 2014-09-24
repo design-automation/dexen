@@ -42,12 +42,12 @@
 <body class="container-fluid">
 <div id="mainHeader" class="row">
     <div class="col-lg-6">
-        <h2>Dexen Jobs</h2>
+        <h1>Dexen</h1>
     </div>
     <div class="col-lg-6">
-        <a id="logoutBtn" href="/logout" class="btn btn-primary pull-right">Logout</a>
-        <button id="adminBtn" class="btn btn-primary pull-right" disabled="disabled">Admin</button>
-        <button id="jobsBtn" class="btn btn-primary pull-right" disabled="disabled">Jobs</button>
+        <a id="logoutBtn" href="/logout" class="btn pull-right">Logout</a>
+        <!-- <button id="adminBtn" class="btn pull-right" disabled="disabled">Admin</button> -->
+        <!-- <button id="jobsBtn" class="btn pull-right" disabled="disabled">Jobs</button> -->
         <span id="loggedInName" class="pull-right">{{username}} logged in</span>
     </div>
 </div>
@@ -55,20 +55,20 @@
 <div id="jobsContainer" class="well">
     <div class="row">
         <div class="col-lg-2">
-            <label>Job: </label>
+            <label>Jobs: </label>
             <span></span>
         </div>
         <div class="col-lg-10">
-            <button id="exportJobBtn" class="btn btn-primary pull-right" disabled="disabled">Export</button>
-            <button id="importJobBtn" class="btn btn-primary pull-right" disabled="disabled">Import</button>
-            <button id="deleteJobBtn" class="btn btn-primary pull-right" disabled="disabled">Delete</button>
-            <button id="stopJobBtn" class="btn btn-primary pull-right" disabled="disabled">Stop</button>
-            <button id="runJobBtn" class="btn btn-primary pull-right" disabled="disabled">Run</button>
+            <button id="exportJobBtn" class="btn pull-right" disabled="disabled">Export</button>
+            <button id="importJobBtn" class="btn pull-right" disabled="disabled">Import</button>
+            <button id="deleteJobBtn" class="btn pull-right" disabled="disabled">Delete</button>
+            <button id="stopJobBtn" class="btn pull-right" disabled="disabled">Stop</button>
+            <button id="runJobBtn" class="btn pull-right" disabled="disabled">Run</button>
             <div role="form" class="form-inline pull-right">
                 <div class="form-group">
                     <label for="jobNameTextBox" class="control-label">Job Name:</label>
                     <input id="jobNameTextBox" type="text" class="form-control">
-                    <button id="createJobBtn" class="btn btn-primary" type="button">Create</button>
+                    <button id="createJobBtn" class="btn" type="button">Create</button>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
         <div id="filesPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="col-lg-4">File: </label>
+                    <label class="col-lg-4">Files: </label>
                     <div class="col-lg-8">
                         <button id="downloadJobFileBtn" class="btn pull-right">Download</button>
                         <button id="uploadJobFileBtn" class="btn pull-right">Upload</button>
@@ -124,7 +124,7 @@
         <div id="eventTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="control-label">Event Task:</label>
+                    <label class="control-label">Event Tasks:</label>
                     <button class="btn pull-right" disabled="disabled">Delete</button>
                     <button id="deregisterEventTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
@@ -141,7 +141,7 @@
         <div id="dataflowTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label>Dataflow Task:</label>
+                    <label>Dataflow Tasks:</label>
                     <button class="btn pull-right" disabled="disabled">Delete</button>
                     <button id="deregisterDataflowTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
@@ -183,7 +183,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4>Register Task</h4>
+                <h4>Register Event Task</h4>
             </div>
             <div class="modal-body">
                 <form id="eventTaskRegistrationForm" class="form-horizontal" role="form">
@@ -226,7 +226,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="eventTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+                <button id="eventTaskRegistrationSubmitBtn" class="btn">Submit</button>
             </div>
         </div>
     </div>
@@ -269,7 +269,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="dataflowTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+                <button id="dataflowTaskRegistrationSubmitBtn" class="btn">Submit</button>
             </div>
         </div>
     </div>
@@ -299,13 +299,13 @@
                             </div>
                         </div>
                         <div class="col-lg-3">
-                            <button class="btn btn-primary">Upload</button>
+                            <button class="btn">Upload</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Done</button>
+                <button class="btn" data-dismiss="modal">Done</button>
             </div>
         </div>
     </div>

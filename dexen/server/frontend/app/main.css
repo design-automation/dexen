@@ -1,29 +1,71 @@
 
+/* Colours */
+/* http://paletton.com/#uid=10Q0u0kl1Wx1x+IcEXDsUWkWEVB
+
+.color-primary-0 { color: #FFFAF3 } light
+.color-primary-1 { color: #FFD99A } 
+.color-primary-2 { color: #FFC058 }
+.color-primary-3 { color: #FFA919 }
+.color-primary-4 { color: #FF9F00 } dark 
+
+*/
+/* ===============================================================================================*/
+
+/* General */
+
+html {
+       overflow-y: scroll;
+}
+
+body {
+    background-color: white;
+}
+
+h1 {
+    color: #694200;
+}
 
 .btn {
-    margin: 5px;
-}
-
-#loggedInName {
-    line-height: 44px;
-    margin-right: 15px;
-    font-weight: bold;
-}
-
-#mainHeader .btn {
-    margin: 5px;
+    background-color: #FFD99A;
+    margin: 2px;
+    padding: 2px 5px;
 }
 
 .row {
     margin: 0px;
+    padding: 0px;
+}
+
+a {
+    color: #FF9F00;
+}
+
+/* mainHeader */
+
+#mainHeader .btn {
+    background-color: white;
+    margin: 2px;
+    padding: 2px 5px;
+}
+
+#loggedInName {
+    line-height: 30px;
+    margin-right: 15px;
+    font-weight: normal;
+}
+
+/* jobsContainer */
+
+#jobsContainer {
+    background-color: #FFFAF3;
+    border-style: solid;
+    border-color: #FFC058;
+    padding: 8px;
 }
 
 #jobsContainer .btn {
-
-}
-
-tbody {
-    height: 100px;
+    margin: 2px;
+    padding: 2px 5px;
 }
 
 #createJobDiv {
@@ -34,15 +76,89 @@ tbody {
     z-index: 150;
 }
 
-.row-selected {
-    background-color: LightSkyBlue;
+/* Tabs */
+
+ul.nav-tabs > li > a {
+    padding: 5px 10px;
+    position:relative;
+    top: 1px;
+    color: black;
+    font-weight: normal;
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+    border-top-color: #FFC058;
+    border-right-color: #FFC058;
+    border-bottom-color: #FFC058;
+    border-left-color: #FFC058;
 }
+
+ul.nav-tabs > li > a:hover {
+    background-color: #FFD99A;
+}
+
+ul.nav-tabs > li.active > a {
+    background-color: #FFFAF3;
+    font-weight: bold;
+    border-top-color: #FFC058;
+    border-right-color: #FFC058;
+    border-bottom-color: white;
+    border-left-color: #FFC058;
+}
+
+ul.nav-tabs > li.active > a:hover {
+    background-color: #FFFAF3;
+    border-top-color: #FFC058;
+    border-right-color: #FFC058;
+    border-bottom-color: white;
+    border-left-color: #FFC058;
+}
+
+/* Tabbed Panes */
+
+
+.well {
+    background-color: #FFFAF3;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFC058;
+    z-index: 100;
+    padding: 8px;
+}
+
+
+/* Tables */
+
+tbody {
+    height: 100px;
+}
+
+.table-bordered {
+    background-color: white;
+    border-style: solid;
+    border-color: #FFC058;
+}
+
+.table-bordered tr, td, th {
+    margin:0px;
+    padding:0px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: red;
+}
+
+tr.row-selected {
+    background-color: #FFD99A;
+}
+
+/* Others */
 
 #periodicTimeFormGroup, #oneShotTimeFormGroup {
     display: none;
 }
 
 .progress-bar {
+    color: #FFC058;
     width:0%;
 }
 
