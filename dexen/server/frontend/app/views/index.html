@@ -54,11 +54,16 @@
 
 <div id="jobsContainer" class="well">
     <div class="row">
-        <div class="col-lg-2">
-            <label>Jobs: </label>
-            <span></span>
-        </div>
-        <div class="col-lg-10">
+        <!-- <div class="col-lg-2"> -->
+            <!-- <label>Jobs: </label> -->
+            <!-- <span></span> -->
+        <!-- </div> -->
+        <!-- <div class="col-lg-10"> -->
+            <button id="collapseBtn" class="btn" disabled="disabled">Collapse</button>
+            <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
+            <input type="checkbox" name="autoRefresh" disabled="disabled"/> Auto Refresh
+            
+            <button class="btn pull-right" disabled="disabled">Export As CSV</button>
             <button id="exportJobBtn" class="btn pull-right" disabled="disabled">Export</button>
             <button id="importJobBtn" class="btn pull-right" disabled="disabled">Import</button>
             <button id="deleteJobBtn" class="btn pull-right" disabled="disabled">Delete</button>
@@ -71,16 +76,11 @@
                     <button id="createJobBtn" class="btn" type="button">Create</button>
                 </div>
             </div>
-        </div>
+        <!-- </div> -->
     </div>
     <table id="jobsTable" class="table table-bordered">
         <tbody></tbody>
     </table>
-    <div class="row">
-        <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
-        <input type="checkbox" name="autoRefresh" disabled="disabled"/> Auto Refresh
-        <button class="btn pull-right" disabled="disabled">Export As CSV</button>
-    </div>
 </div>
 
 <div>
@@ -105,26 +105,24 @@
         <div id="filesPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="col-lg-4">Files: </label>
-                    <div class="col-lg-8">
+                    <!-- <div class="col-lg-8"> -->
+                        <button id="refreshJobFilesBtn" class="btn">Refresh</button>
+                        <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                         <button id="downloadJobFileBtn" class="btn pull-right">Download</button>
                         <button id="uploadJobFileBtn" class="btn pull-right">Upload</button>
-                    </div>
+                    <!-- </div> -->
                 </div>
                 <table id="jobFilesTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshJobFilesBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
-                </div>
             </div>
 
         </div>
         <div id="eventTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="control-label">Event Tasks:</label>
+                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                     <button class="btn pull-right" disabled="disabled">Delete</button>
                     <button id="deregisterEventTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
@@ -132,16 +130,13 @@
                 <table id="eventTasksTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
-                </div>
             </div>
         </div>
         <div id="dataflowTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label>Dataflow Tasks:</label>
+                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
                     <button class="btn pull-right" disabled="disabled">Delete</button>
                     <button id="deregisterDataflowTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
@@ -149,30 +144,26 @@
                 <table id="dataflowTasksTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
-                </div>
             </div>
         </div>
         <div id="executionsPane" class="tab-pane">
             <div class="well">
-                <table id="executionsTable" class="table table-bordered">
-                    <tbody></tbody>
-                </table>
                 <div class="row">
                     <button id="refreshExecutionsTableBtn" class="btn">Refresh</button>
                 </div>
+                <table id="executionsTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
         <div id="dataPane" class="tab-pane">
             <div class="well">
-                <table id="jobDataTable" class="table table-bordered">
-                    <tbody></tbody>
-                </table>
                 <div class="row">
                     <button id="refreshJobDataTableBtn" class="btn">Refresh</button>
                 </div>
+                <table id="jobDataTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
