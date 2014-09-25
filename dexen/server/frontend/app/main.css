@@ -29,6 +29,9 @@ h1 {
     background-color: #FFD99A;
     margin: 2px;
     padding: 2px 5px;
+    border-style: solid;
+    border-radius: 0px;
+    border-color: #FFC058;
 }
 
 .row {
@@ -42,9 +45,8 @@ a {
 
 /* mainHeader */
 
-#mainHeader .btn {
-    background-color: white;
-    margin: 2px;
+#mainHeader a {
+    margin: 3px;
     padding: 2px 5px;
 }
 
@@ -151,6 +153,21 @@ tr.row-selected {
     background-color: #FFD99A;
 }
 
+.form-control {
+    background-color: white;
+    margin: 2px;
+    padding: 2px 5px;
+    border-style: solid;
+    border-radius: 0px;
+    border-color: #FFC058;
+}
+
+.paginate_button { /* For some reason, this is not woring... */
+    background-color: #FFFAF3;
+    border-style: solid;
+    border-radius: 0px;
+    border-color: #FFC058;
+}
 /* Others */
 
 #periodicTimeFormGroup, #oneShotTimeFormGroup {
