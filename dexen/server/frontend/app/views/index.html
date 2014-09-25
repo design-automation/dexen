@@ -59,7 +59,7 @@
             <!-- <span></span> -->
         <!-- </div> -->
         <!-- <div class="col-lg-10"> -->
-            <button id="collapseBtn" class="btn" disabled="disabled">Collapse</button>
+            <button id="collapseBtn" class="btn">Collapse</button>
             <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
             <input type="checkbox" name="autoRefresh" disabled="disabled"/> Auto Refresh
             
@@ -78,9 +78,11 @@
             </div>
         <!-- </div> -->
     </div>
-    <table id="jobsTable" class="table table-bordered">
-        <tbody></tbody>
-    </table>
+    <div id="jobsPanel" class="collapse in">
+        <table id="jobsTable" class="table table-bordered">
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 <div>

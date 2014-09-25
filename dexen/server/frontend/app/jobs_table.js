@@ -57,6 +57,14 @@ function setupJobsTable() {
         updateJobBtns($tr);
         updateActivePane();
     });
+
+    var btnLabel = ["Expand", "Collapse"];
+    var i = 0;
+    $("#collapseBtn").on("click", function(){
+        $("#jobsPanel").collapse("toggle");
+        $(this).text(btnLabel[i]);
+        i = (i+1)%2;
+    });
 }
 
 function ReselectJobRow($table, curJobName){
