@@ -186,3 +186,8 @@ tr.row-selected {
     clear: both;
     height: 0;
 }
+
+div.col-xs-6 {
+    margin:0px;
+    padding:0px;
+}

@@ -27,8 +27,23 @@ div.dataTables_paginate {
 }
 
 div.dataTables_paginate ul.pagination {
-	margin: 2px 0;
+	margin: 2px 0px;
 	white-space: nowrap;
+}
+
+div.dataTables_paginate ul.pagination li.paginate_button a {
+    color: black;
+    background-color: #FFD99A;
+    margin: 1px;
+    padding: 2px 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0px;
+    border-color: #FFC058;
+}
+
+div.dataTables_paginate ul.pagination li.paginate_button a:hover {
+    background-color: #FFC058;
 }
 
 table.dataTable td,
