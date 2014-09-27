@@ -50,8 +50,8 @@ function setupExecutionsTable() {
     	"data": [],
     	"columns": [
 			{ "title" : "ID"			,	"data": null   ,   "render" : executionsTableRenderFunction("execution_id") },
-			{ "title" : "Task Name" 	,	"data": null   ,   "render" : executionsTableRenderFunction("task_name") },
-			{ "title" : "WorkerName"	,	"data": null   ,   "render" : executionsTableRenderFunction("worker_name") },
+			{ "title" : "Task" 	        ,	"data": null   ,   "render" : executionsTableRenderFunction("task_name") },
+			{ "title" : "Worker"	    ,	"data": null   ,   "render" : executionsTableRenderFunction("worker_name") },
 			{ "title" : "Creation Time"	,	"data": null   ,   "render" : executionsTableRenderFunction("creation_time") },
 			{ "title" : "Begin Time"	,	"data": null   ,   "render" : executionsTableRenderFunction("begin_time") },
 			{ "title" : "End Time"		,	"data": null   ,   "render" : executionsTableRenderFunction("end_time") },

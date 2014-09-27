@@ -18,9 +18,9 @@ function setupEventTasksTable() {
         aoColumns: [
             {sTitle: 'Name', mData: 'task_name'},
             {sTitle: 'Registration Time', mData: 'registration_time'},
-            {sTitle: 'Num Pending', mData: 'num_pending'},
-            {sTitle: 'Num Scheduled', mData: 'num_scheduled'},
-            {sTitle: 'Total Executions', mData: 'num_executions'},
+            {sTitle: 'Pending Executions', mData: 'num_pending'},
+            {sTitle: 'Ongoing Executions', mData: 'num_scheduled'},
+            {sTitle: 'Completed Executions', mData: 'num_executions'},
             {sTitle: 'Avg. Execution Time', mData: 'avg_execution_time'},
         ]
     });
@@ -52,11 +52,11 @@ function setupDataflowTasksTable() {
         aoColumns: [
             {sTitle: 'Name', mData: 'task_name'},
             {sTitle: 'Registration Time', mData: 'registration_time'},
-            {sTitle: 'Num Pending Data', mData: 'num_pending_data'},
-            {sTitle: 'Num Scheduled Data', mData: 'num_scheduled_data'},
-            {sTitle: 'Scheduled Executions', mData: 'num_scheduled_executions'},
+            {sTitle: 'Valid Data Objects', mData: 'num_pending_data'},
+            {sTitle: 'Assigned Data Objects', mData: 'num_scheduled_data'},
+            {sTitle: 'Ongoing Executions', mData: 'num_scheduled_executions'},
             {sTitle: 'Failed Executions', mData: 'num_failed_executions'},
-            {sTitle: 'Total Executions', mData: 'num_executions'},
+            {sTitle: 'Successful Executions', mData: 'num_executions'},
             {sTitle: 'Avg. Execution Time', mData: 'avg_execution_time'},
         ]
     });
