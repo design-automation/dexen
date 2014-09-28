@@ -118,7 +118,8 @@ var tabContents = {
     "#eventTasksPane" : new TabContent(refreshEventTasksTable),
     "#dataflowTasksPane" : new TabContent(refreshDataflowTasksTable),
     "#executionsPane" : new TabContent(refreshExecutionsTable),
-    "#dataPane" : new TabContent(refreshJobDataTable)
+    "#dataPane" : new TabContent(refreshJobDataTable),
+    "#graphPane" : new TabContent(refreshGraph)
 };
 
 function setupTabs(){
@@ -148,6 +149,7 @@ $(document).ready(function() {
     setupExecutionsTable();
     setupJobDataTable();
     setupTabs();
+    setupGraph();
 
     refreshJobs();
 });
