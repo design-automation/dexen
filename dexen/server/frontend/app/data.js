@@ -44,6 +44,9 @@ function refreshJobDataTable() {
         						"render" : (function(localKey){
         										return function(allData, type, row, meta){
                                                     var cellData = row[localKey];
+                                                    if(cellData == null)
+                                                        return "";
+                                                    
         											if(type == "display" && typeof(cellData) == "string"){        												
         												var metadata = data.metadata[meta.row];
 										        		if(metadata.hasOwnProperty(BINARY_KEYS) && metadata.hasOwnProperty(DATA_ID)){
