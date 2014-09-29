@@ -73,7 +73,8 @@ function setupGraph(xAttr, yAttr){
   var data = [];
   $.each(curData.data, function(i, row){
     if(row.hasOwnProperty(xAttr) && row.hasOwnProperty(yAttr)){
-      data.push(row);
+      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr]))
+        data.push(row);
     }
   });
 
@@ -144,10 +145,15 @@ function setupGraph(xAttr, yAttr){
 function onDataChanged(data){
   curData = data;
   var attrsSet = {};
+  var attrs = [];
   $.each(data.data, function(i, row){
     $.each(row, function(key, val){
-      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype")
-        attrsSet[key] = "";                
+      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype"){
+        if(!attrsSet.hasOwnProperty(key)){
+          attrsSet[key] = "";
+          attrs.push(key);
+        }
+      }
     });
   });
   var xAttributeName = $("#xAttributeName");
@@ -171,6 +177,10 @@ function onDataChanged(data){
 
   if(lastXAttr != null && lastYAttr != null && lastXAttr != lastYAttr){
     setupGraph(lastXAttr, lastYAttr);
+  }else if(attrs.length >= 2){
+    xAttributeName.val(attrs[0]);
+    yAttributeName.val(attrs[1]);
+    setupGraph(attrs[0], attrs[1]);
   }else{
     clearGraph();
   }
