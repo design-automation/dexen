@@ -4,7 +4,8 @@ function setupGraph(){
                                 .attr("src", "eddex/index.html")
                                 .attr("id", "eddexFrame")
                                 .attr("width", "100%")
-                                .attr("scrolling", "no");
+                                .attr("scrolling", "no")
+                                .attr("frameBorder", "0");
     $graphPane.empty();
     $graphPane.append($eddexFrame);
     $eddexFrame.iFrameResize({

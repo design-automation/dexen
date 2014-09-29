@@ -146,14 +146,6 @@ tbody {
     border-color: #FFC058;
 }
 
-.table-bordered tr, td, th {
-    margin:0px;
-    padding:0px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: red;
-}
-
 tr.row-selected {
     background-color: #FFD99A;
 }
@@ -165,6 +157,17 @@ tr.row-selected {
     border-style: solid;
     border-radius: 0px;
     border-color: #FFC058;
+}
+
+
+/* Plugins */
+
+#graphPane {
+    background-color: #FFFAF3;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFC058;
+    padding: 8px;
 }
 
 /* Others */
