@@ -15,15 +15,20 @@ body {
 }
 
 .dot {
-  stroke: #000;
+  stroke: blue;
 }
 
 .tooltip {
   position: absolute;
-  width: 200px;
-  height: 28px;
-  pointer-events: none;
+  /*width: 200px;*/
+  /*height: 28px;*/
+  /*pointer-events: none;*/
   background-color: #FFFAF3;
+  padding: 10px;
+}
+
+.spanLabel {
+  color: Brown;
 }
 
 #graphArea {
@@ -45,13 +50,20 @@ body {
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="../lib/js/iframeResizer.contentWindow.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="../util.js"></script>
 <script>
 var curData = null;
 var curJobName = null;
 var lastXAttr = null;
 var lastYAttr = null;
 
+function clearGraph(){
+  $("#graphContainer").empty();
+}
+
 function setupGraph(xAttr, yAttr){
+  clearGraph();
+
   lastXAttr = xAttr;
   lastYAttr = yAttr;
   var htmlMargin = 20;
@@ -81,16 +93,26 @@ function setupGraph(xAttr, yAttr){
   var data = [];
   $.each(curData.data, function(i, row){
     if(row.hasOwnProperty(xAttr) && row.hasOwnProperty(yAttr)){
-      data.push(row);
+      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr])){
+        var metadata = curData.metadata[i];
+        if(metadata.hasOwnProperty("_id") && 
+          metadata.hasOwnProperty("keys") && 
+          metadata["keys"].indexOf("phenotype") != -1){
+          row["phenotype"] = metadata["_id"];
+        }else{
+          row["phenotype"] = "";
+        }
+
+        data.push(row);
+      }
     }
   });
 
-  // add the graph canvas to the body of the webpage
-  $("#graphContainer").empty();
+  // add the graph canvas to the body of the webpage  
   var svg = d3.select("#graphContainer").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+      .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // add the tooltip area to the webpage
@@ -134,29 +156,46 @@ function setupGraph(xAttr, yAttr){
       .attr("r", 3.5)
       .attr("cx", xMap)
       .attr("cy", yMap)
-      .style("fill", "blue") 
-      .on("mouseover", function(d) {
+      .style("fill", "DodgerBlue") 
+      .on("mouseover", function(d, e) {
+          var htmlStr = "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
+                        "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
+          if(d.hasOwnProperty("phenotype")){
+            var phenoVal = d["phenotype"];
+            if(typeof(phenoVal) == "string" && phenoVal.length > 0){
+              htmlStr +=  "<br/><span class='spanLabel'>phenotype</span>: <a href='" + 
+                          "/data/" + encodeURIComponent(curJobName) + "/" + encodeURIComponent(d["phenotype"]) + "/phenotype'>Download</a>";
+            }
+          }
+              
           tooltip.transition()
                .duration(200)
-               .style("opacity", .9);
-          tooltip.html(d[xAttr] + ", " + d[yAttr])
-               .style("left", (d3.event.pageX + 5) + "px")
-               .style("top", (d3.event.pageY - 28) + "px");
-      })
-      .on("mouseout", function(d) {
-          tooltip.transition()
-               .duration(500)
-               .style("opacity", 0);
-      });  
+               .style("opacity", 1);
+          tooltip.html(htmlStr)
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY) + "px");
+      });
+      
+    d3.select("body").on("click", function() {
+        tooltip.html("")
+             .style("left", "0px")
+             .style("top", "0px")
+             .style("opacity", 0);
+    });  
 }
 
 function onDataChanged(data){
   curData = data;
   var attrsSet = {};
+  var attrs = [];
   $.each(data.data, function(i, row){
     $.each(row, function(key, val){
-      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype")
-        attrsSet[key] = "";                
+      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype"){
+        if(!attrsSet.hasOwnProperty(key)){
+          attrsSet[key] = "";
+          attrs.push(key);
+        }
+      }
     });
   });
   var xAttributeName = $("#xAttributeName");
@@ -180,6 +219,12 @@ function onDataChanged(data){
 
   if(lastXAttr != null && lastYAttr != null && lastXAttr != lastYAttr){
     setupGraph(lastXAttr, lastYAttr);
+  }else if(attrs.length >= 2){
+    xAttributeName.val(attrs[0]);
+    yAttributeName.val(attrs[1]);
+    setupGraph(attrs[0], attrs[1]);
+  }else{
+    clearGraph();
   }
 }
 
@@ -188,14 +233,17 @@ function selectedAttrChanged(e){
   var yAttributeName = $("#yAttributeName");
   var xAttr = xAttributeName.val();
   var yAttr = yAttributeName.val();
-  if(xAttr == null || yAttr == null || xAttr == yAttr)
+  if(xAttr == null || yAttr == null || xAttr == yAttr){
+    clearGraph();
     return;
+  }
 
   setupGraph(xAttr, yAttr);
 }
 
 function refreshData(){
   if(curJobName == null){
+    clearGraph();
     return;
   }
 
@@ -210,6 +258,7 @@ function refreshData(){
     },
     error: function (jqXHR, textStatus, errorThrown) {
       alert("Unable to get job data. Status: " + textStatus);
+      clearGraph();
     }
   });
 }
