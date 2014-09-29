@@ -37,7 +37,13 @@ var curJobName = null;
 var lastXAttr = null;
 var lastYAttr = null;
 
+function clearGraph(){
+  $("#graphContainer").empty();
+}
+
 function setupGraph(xAttr, yAttr){
+  clearGraph();
+
   lastXAttr = xAttr;
   lastYAttr = yAttr;
   var htmlMargin = 20;
@@ -71,8 +77,7 @@ function setupGraph(xAttr, yAttr){
     }
   });
 
-  // add the graph canvas to the body of the webpage
-  $("#graphContainer").empty();
+  // add the graph canvas to the body of the webpage  
   var svg = d3.select("#graphContainer").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -166,6 +171,8 @@ function onDataChanged(data){
 
   if(lastXAttr != null && lastYAttr != null && lastXAttr != lastYAttr){
     setupGraph(lastXAttr, lastYAttr);
+  }else{
+    clearGraph();
   }
 }
 
@@ -174,14 +181,17 @@ function selectedAttrChanged(e){
   var yAttributeName = $("#yAttributeName");
   var xAttr = xAttributeName.val();
   var yAttr = yAttributeName.val();
-  if(xAttr == null || yAttr == null || xAttr == yAttr)
+  if(xAttr == null || yAttr == null || xAttr == yAttr){
+    clearGraph();
     return;
+  }
 
   setupGraph(xAttr, yAttr);
 }
 
 function refreshData(){
   if(curJobName == null){
+    clearGraph();
     return;
   }
 
@@ -196,6 +206,7 @@ function refreshData(){
     },
     error: function (jqXHR, textStatus, errorThrown) {
       alert("Unable to get job data. Status: " + textStatus);
+      clearGraph();
     }
   });
 }
