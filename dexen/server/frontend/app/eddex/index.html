@@ -15,7 +15,7 @@ body {
 }
 
 .dot {
-  stroke: #000;
+  stroke: blue;
 }
 
 .tooltip {
@@ -139,7 +139,7 @@ function setupGraph(xAttr, yAttr){
       .attr("r", 3.5)
       .attr("cx", xMap)
       .attr("cy", yMap)
-      .style("fill", "blue") 
+      .style("fill", "DodgerBlue") 
       .on("mouseover", function(d, e) {
           var htmlStr = "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
                         "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
@@ -160,8 +160,9 @@ function setupGraph(xAttr, yAttr){
       });
       
     d3.select("body").on("click", function() {
-        tooltip.transition()
-             .duration(500)
+        tooltip.html("")
+             .style("left", "0px")
+             .style("top", "0px")
              .style("opacity", 0);
     });  
 }
