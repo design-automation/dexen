@@ -20,10 +20,12 @@ body {
 
 .tooltip {
   position: absolute;
-  width: 200px;
-  height: 28px;
-  pointer-events: none;
-  background-color: #D8D8D8;
+  background-color: Ivory;
+  padding: 10px;
+}
+
+.spanLabel{
+  color: Brown;
 }
 </style>
 <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css">
@@ -31,6 +33,7 @@ body {
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="../lib/js/iframeResizer.contentWindow.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="../util.js"></script>
 <script>
 var curData = null;
 var curJobName = null;
@@ -73,8 +76,18 @@ function setupGraph(xAttr, yAttr){
   var data = [];
   $.each(curData.data, function(i, row){
     if(row.hasOwnProperty(xAttr) && row.hasOwnProperty(yAttr)){
-      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr]))
+      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr])){
+        var metadata = curData.metadata[i];
+        if(metadata.hasOwnProperty("_id") && 
+          metadata.hasOwnProperty("keys") && 
+          metadata["keys"].indexOf("phenotype") != -1){
+          row["phenotype"] = metadata["_id"];
+        }else{
+          row["phenotype"] = "";
+        }
+
         data.push(row);
+      }
     }
   });
 
@@ -82,7 +95,7 @@ function setupGraph(xAttr, yAttr){
   var svg = d3.select("#graphContainer").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+      .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // add the tooltip area to the webpage
@@ -127,19 +140,30 @@ function setupGraph(xAttr, yAttr){
       .attr("cx", xMap)
       .attr("cy", yMap)
       .style("fill", "blue") 
-      .on("mouseover", function(d) {
+      .on("mouseover", function(d, e) {
+          var htmlStr = "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
+                        "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
+          if(d.hasOwnProperty("phenotype")){
+            var phenoVal = d["phenotype"];
+            if(typeof(phenoVal) == "string" && phenoVal.length > 0){
+              htmlStr +=  "<br/><span class='spanLabel'>phenotype</span>: <a href='" + 
+                          "/data/" + encodeURIComponent(curJobName) + "/" + encodeURIComponent(d["phenotype"]) + "/phenotype'>Download</a>";
+            }
+          }
+              
           tooltip.transition()
                .duration(200)
-               .style("opacity", .9);
-          tooltip.html(d[xAttr] + ", " + d[yAttr])
-               .style("left", (d3.event.pageX + 5) + "px")
-               .style("top", (d3.event.pageY - 28) + "px");
-      })
-      .on("mouseout", function(d) {
-          tooltip.transition()
-               .duration(500)
-               .style("opacity", 0);
-      });  
+               .style("opacity", 1);
+          tooltip.html(htmlStr)
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY) + "px");
+      });
+      
+    d3.select("body").on("click", function() {
+        tooltip.transition()
+             .duration(500)
+             .style("opacity", 0);
+    });  
 }
 
 function onDataChanged(data){
