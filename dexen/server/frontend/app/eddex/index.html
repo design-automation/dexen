@@ -161,8 +161,8 @@ function setupGraph(xAttr, yAttr){
           if(d.hasOwnProperty("phenotype")){
             var phenoVal = d["phenotype"];
             if(typeof(phenoVal) == "string" && phenoVal.length > 0){
-              htmlStr +=  "<br/><span class='spanLabel'>phenotype</span>: <a href='" + 
-                          "/data/" + encodeURIComponent(curJobName) + "/" + encodeURIComponent(d["phenotype"]) + "/phenotype'>Download</a>";
+              htmlStr +=  "<br/><span class='spanLabel'>phenotype.bgeo</span>: <a href='" + 
+                          "/data/" + encodeURIComponent(curJobName) + "/" + encodeURIComponent(d["phenotype"]) + "/phenotype.bgeo'>Download</a>";
             }
           }
               
