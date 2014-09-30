@@ -216,7 +216,13 @@ def download_data(job_name, enc_data_id, attr_name):
             return make_response("Unsupported data type", 400, None)
 
         response = make_response(val)
-        response.headers["Content-Disposition"] = "attachment; filename={0}.{1}.{2}".format(job_name, str(data_id), attr_name)
+        ext = request.args.get('ext')
+        if ext is None:
+            ext = ""
+        else:
+            ext = "." + ext
+        filename = "{0}.{1}.{2}{3}".format(job_name, str(data_id), attr_name, ext)
+        response.headers["Content-Disposition"] = "attachment; filename=" + filename
 
         return response
     except:
