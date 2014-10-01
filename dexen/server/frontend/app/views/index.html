@@ -79,13 +79,14 @@
             <button id="deleteJobBtn" class="btn pull-right" disabled="disabled">Delete</button>
             <button id="stopJobBtn" class="btn pull-right" disabled="disabled">Stop</button>
             <button id="runJobBtn" class="btn pull-right" disabled="disabled">Run</button>
-            <div role="form" class="form-inline pull-right">
+            <button id="createJobBtn" class="btn pull-right" type="button">Create</button>
+<!--             <div role="form" class="form-inline pull-right">
                 <div class="form-group">
                     <label for="jobNameTextBox" class="control-label">Job Name:</label>
                     <input id="jobNameTextBox" type="text" class="form-control">
                     <button id="createJobBtn" class="btn" type="button">Create</button>
                 </div>
-            </div>
+            </div> -->
         <!-- </div> -->
     </div>
     <div id="jobsPanel" class="collapse in">
@@ -104,7 +105,7 @@
             <a href="#eventTasksPane" data-toggle="tab">Event Tasks</a>
         </li>
         <li class="disabled">
-            <a href="#dataflowTasksPane" data-toggle="tab">Dataflow Tasks</a>
+            <a href="#dataflowTasksPane" data-toggle="tab">Data Tasks</a>
         </li>
         <li class="disabled">
             <a href="#executionsPane" data-toggle="tab">Executions</a>
@@ -245,7 +246,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4>Register Dataflow Task</h4>
+                <h4>Register Data Task</h4>
             </div>
             <div class="modal-body">
                 <form id="dataflowTaskRegistrationForm" class="form-horizontal" role="form">

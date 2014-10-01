@@ -56,8 +56,8 @@ table.dataTable th {
 
 table.dataTable {
 	clear: both;
-	margin-top: 6px !important;
-	margin-bottom: 6px !important;
+	margin-top: 8px !important;
+	margin-bottom: 8px !important;
 	max-width: none !important;
 }
 
@@ -77,8 +77,8 @@ table.dataTable thead .sorting_asc_disabled { background: url('../images/sort_as
 table.dataTable thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
 
 table.dataTable thead > tr > th {
-	padding-left: 18px;
-	padding-right: 18px;
+	padding: 6px;
+	margin: 0px;
 }
 
 table.dataTable th:active {
@@ -123,11 +123,23 @@ table.table-bordered.dataTable {
 }
 table.table-bordered thead th,
 table.table-bordered thead td {
+	font-size: 12px;
+	line-height: 1;
+	padding: 6px;
+	margin: 0px;
+	border: 1px solid #FFC058;
+
 	border-left-width: 0;
 	border-top-width: 0;
 }
 table.table-bordered tbody th,
 table.table-bordered tbody td {
+	font-size: 12px;
+	line-height: 1;
+	padding: 6px;
+	margin: 0px;
+	border: 1px solid #FFC058;
+
 	border-left-width: 0;
 	border-bottom-width: 0;
 }
