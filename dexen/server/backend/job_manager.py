@@ -56,6 +56,7 @@ class JobManager(object):
         """
         self.user_name = user_name
         self.job_name = job_name
+        self.db_client = db_client
         self.creation_time = time.time()
         self.start_time = None
         self.stop_time = None
@@ -211,4 +212,8 @@ class JobManager(object):
         info["event_tasks"] = self.event_task_mgr.json_info()
         info["dataflow_tasks"] = self.dataflow_task_mgr.json_info()
         return info
+
+    def initDataIdCounter(self):
+        coll = db.GetJobDataIdCounterCollection(self.db_client, self.user_name, self.job_name)
+        coll.insert({"_id" : "data_id", "seq" : 0})
 

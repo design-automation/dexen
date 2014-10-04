@@ -104,11 +104,23 @@ def GetJobDataCollection(db_client, user_name, job_name):
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".data")
 
+def GetJobDataIdCounterCollection(db_client, user_name, job_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), job_name+".counters")
 
 def GetJobExecutionCollection(db_client, user_name, job_name):
     """
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".executions")
+
+def GetNextJobDataId(db_client, user_name, job_name):
+    counterColl = GetJobDataIdCounterCollection(db_client, user_name, job_name)
+    doc = counterColl.find_and_modify(query = { "_id": "data_id" }, update = { "$inc": { "seq": 1 } }, new = True)
+    if doc is None:
+        return None
+
+    return doc["seq"]
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.

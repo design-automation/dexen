@@ -78,8 +78,11 @@ function setupJobActions() {
     });
 
     $createJobBtn.click(function() {
-        var jobName = $('#jobNameTextBox').val();
-        createJob(jobName);
+        var jobName = prompt("Please enter a job name", "");
+
+        if (jobName != null && jobName.length > 0) {
+            createJob(jobName);
+        }
     });
 
     $runJobBtn.click(function() {
