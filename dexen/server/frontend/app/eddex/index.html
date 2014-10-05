@@ -54,13 +54,27 @@ var curData = null;
 var curJobName = null;
 var lastXAttr = null;
 var lastYAttr = null;
+var x_zoom = null;
+var y_zoom = null;
 
 function clearGraph(){
   $("#graphContainer").empty();
 }
 
-function setupGraph(xAttr, yAttr){
+function clamp(val, trans, range){
+  val -= trans;
+  if(val < 0)
+    return 0;
+  if(val > range)
+    return range;
+  return val;
+}
+
+function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
   clearGraph();
+
+  if(xAttr == null || yAttr == null)
+    return;
 
   lastXAttr = xAttr;
   lastYAttr = yAttr;
@@ -117,14 +131,61 @@ function setupGraph(xAttr, yAttr){
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  d3.select("svg").append("svg:rect").
+        attr("id", "zoom_rect").
+        attr("fill-opacity", 0).
+        attr("stroke", "black").
+        attr("stroke-width", 1).
+        attr("visibility","hidden");
+
   // add the tooltip area to the webpage
   var tooltip = d3.select("#graphContainer").append("div")
       .attr("class", "tooltip")
       .style("opacity", 0);
 
   // don't want dots overlapping axis, so add in buffer to data domain
-  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
-  yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+  if(x_zoom != null && y_zoom != null){
+    xScale.domain(x_zoom);
+    yScale.domain(y_zoom);
+  }else{
+    xScale.domain([d3.min(data, xValue), d3.max(data, xValue)]);
+    yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
+  }  
+
+  if(xZoomRange != null && yZoomRange != null){
+    console.log("Input:");
+    console.log(xZoomRange[0] + "," + xZoomRange[1]);
+    console.log(yZoomRange[0] + "," + yZoomRange[1]);
+
+    xZoomRange[0] = clamp(xZoomRange[0], margin.left, width);
+    xZoomRange[1] = clamp(xZoomRange[1], margin.left, width);
+    yZoomRange[0] = clamp(yZoomRange[0], margin.top, height);
+    yZoomRange[1] = clamp(yZoomRange[1], margin.top, height);
+
+    console.log("Clamped:");
+    console.log(xZoomRange[0] + "," + xZoomRange[1]);
+    console.log(yZoomRange[0] + "," + yZoomRange[1]);
+
+    x_zoom = [xScale.invert(xZoomRange[0]), xScale.invert(xZoomRange[1])].sort(d3.ascending);
+    y_zoom = [yScale.invert(yZoomRange[0]), yScale.invert(yZoomRange[1])].sort(d3.ascending);
+
+    console.log("Inverted:");
+    console.log(x_zoom[0] + "," + x_zoom[1]);
+    console.log(y_zoom[0] + "," + y_zoom[1]);
+
+    xScale.domain(x_zoom);
+    yScale.domain(y_zoom);
+
+    var filtered = [];
+    $.each(data, function(i, row){
+      if(row[xAttr] >= x_zoom[0] && row[xAttr] <= x_zoom[1] &&
+          row[yAttr] >= y_zoom[0] && row[yAttr] <= y_zoom[1]){
+        filtered.push(row);
+      }
+    });
+
+    data = filtered;
+  }
 
   // x-axis
   svg.append("g")
@@ -178,16 +239,22 @@ function setupGraph(xAttr, yAttr){
                .style("left", (d3.event.pageX) + "px")
                .style("top", (d3.event.pageY) + "px");
       });
-      
-    d3.select("body").on("click", function() {
-        tooltip.html("")
+
+  d3.select("body").on("click", function(){
+    hideTooltip(tooltip);
+  });
+}
+
+function hideTooltip(tooltip){
+  tooltip.html("")
              .style("left", "0px")
              .style("top", "0px")
              .style("opacity", 0);
-    });  
 }
 
 function onDataChanged(data){
+  x_zoom = null;
+  y_zoom = null;
   curData = data;
   var attrsSet = {};
   var attrs = [];
@@ -221,17 +288,19 @@ function onDataChanged(data){
   }
 
   if(lastXAttr != null && lastYAttr != null && lastXAttr != lastYAttr){
-    setupGraph(lastXAttr, lastYAttr);
+    setupGraph(lastXAttr, lastYAttr, null, null);
   }else if(attrs.length >= 2){
     xAttributeName.val(attrs[0]);
     yAttributeName.val(attrs[1]);
-    setupGraph(attrs[0], attrs[1]);
+    setupGraph(attrs[0], attrs[1], null, null);
   }else{
     clearGraph();
   }
 }
 
 function selectedAttrChanged(e){
+  x_zoom = null;
+  y_zoom = null;
   var xAttributeName = $("#xAttributeName");
   var yAttributeName = $("#yAttributeName");
   var xAttr = xAttributeName.val();
@@ -241,7 +310,7 @@ function selectedAttrChanged(e){
     return;
   }
 
-  setupGraph(xAttr, yAttr);
+  setupGraph(xAttr, yAttr, null, null);
 }
 
 function refreshData(){
@@ -264,6 +333,34 @@ function refreshData(){
       clearGraph();
     }
   });
+}
+
+// Redraw the zoom rectangle
+function updateZoomRectange(zoom_mousedown, zoom_mouseup) {
+    var x = d3.min([zoom_mousedown[0], zoom_mouseup[0]]);
+    var y = d3.min([zoom_mousedown[1], zoom_mouseup[1]]);
+    var width = Math.abs(zoom_mousedown[0] - zoom_mouseup[0]);
+    var height = Math.abs(zoom_mousedown[1] - zoom_mouseup[1]);
+
+    d3.select('#zoom_rect').
+        attr("x", x).
+        attr("y", y).
+        attr("width", width).
+        attr("height", height);
+}
+
+function resetZoom(){
+  x_zoom = null;
+  y_zoom = null;
+  var xAttributeName = $("#xAttributeName");
+  var yAttributeName = $("#yAttributeName");
+  var xAttr = xAttributeName.val();
+  var yAttr = yAttributeName.val();
+  if(xAttr != null && yAttr != null){
+    setupGraph(xAttr, yAttr, null, null);
+  }else{
+    clearGraph();
+  }
 }
 
 $(document).ready(function(){
@@ -293,6 +390,50 @@ $(document).ready(function(){
 
       refreshData();
   });
+
+  $("#resetZoomBtn").on("click", function(){
+    resetZoom();
+  });
+
+  // MOUSE EVENT: mousedown
+  var zoom_mouseDown = null;
+  d3.select("#graphContainer").on("mousedown", function() {
+    var tooltip = d3.select(".tooltip");
+    if(!tooltip.empty() && tooltip.html().length > 0){
+      hideTooltip(tooltip);
+      return;
+    }
+    var svg = d3.select("svg").node();
+    if(svg == null)
+      return;
+
+    zoom_mouseDown = d3.mouse(svg);
+
+    d3.select("#zoom_rect").attr("visibility","visible");
+  });
+
+  d3.select("#graphContainer").on("mousemove", function(){
+    if(zoom_mouseDown == null)
+      return;
+
+    var zoom_mouse = d3.mouse(d3.select('svg').node());
+    if (zoom_mouseDown != null) {
+        updateZoomRectange(zoom_mouseDown, zoom_mouse);
+    }
+  });
+  
+  // MOUSE EVENT: mouseup
+  d3.select("#graphContainer").on("mouseup", function() {
+      if(zoom_mouseDown == null)
+        return;
+      var svg = d3.select("svg").node();
+      if(svg == null)
+        return;
+      var zoom_mouseUp = d3.mouse(svg);
+      setupGraph(xAttributeName.val(), yAttributeName.val(), [zoom_mouseDown[0], zoom_mouseUp[0]], [zoom_mouseDown[1], zoom_mouseUp[1]]);
+      zoom_mouseDown = null;
+  });
+
 });
 
 </script>
@@ -304,6 +445,9 @@ $(document).ready(function(){
   <form class="form-inline" role="form">
     <div class="form-group">
       <button id="refreshBtn" type="button" class="btn">Refresh</button>
+    </div>
+    <div class="form-group">
+      <button id="resetZoomBtn" type="button" class="btn">Reset Zoom</button>
     </div>
     <div class="form-group">
       <label for="xAxisAttributeSelection">X-Axis:</label>
