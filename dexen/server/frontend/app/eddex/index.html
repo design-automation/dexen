@@ -160,7 +160,8 @@ function setupGraph(xAttr, yAttr){
       .attr("cy", yMap)
       .style("fill", "DodgerBlue") 
       .on("mouseover", function(d, e) {
-          var htmlStr = "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
+          var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"] + "<br/>" +
+                        "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
                         "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
           if(d.hasOwnProperty("phenotype")){
             var phenoVal = d["phenotype"];
