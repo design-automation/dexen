@@ -397,18 +397,25 @@ $(document).ready(function(){
 
   // MOUSE EVENT: mousedown
   var zoom_mouseDown = null;
-  d3.select("#graphContainer").on("mousedown", function() {
+  d3.select("#graphContainer").on("click", function() {
+    var svg = d3.select("svg").node();
+    if(svg == null)
+      return;
+
+    if(zoom_mouseDown != null){
+      var zoom_mouseUp = d3.mouse(svg);
+      setupGraph(xAttributeName.val(), yAttributeName.val(), [zoom_mouseDown[0], zoom_mouseUp[0]], [zoom_mouseDown[1], zoom_mouseUp[1]]);
+      zoom_mouseDown = null;
+      return;
+    }
+
     var tooltip = d3.select(".tooltip");
     if(!tooltip.empty() && tooltip.html().length > 0){
       hideTooltip(tooltip);
       return;
     }
-    var svg = d3.select("svg").node();
-    if(svg == null)
-      return;
 
     zoom_mouseDown = d3.mouse(svg);
-
     d3.select("#zoom_rect").attr("visibility","visible");
   });
 
@@ -420,18 +427,6 @@ $(document).ready(function(){
     if (zoom_mouseDown != null) {
         updateZoomRectange(zoom_mouseDown, zoom_mouse);
     }
-  });
-  
-  // MOUSE EVENT: mouseup
-  d3.select("#graphContainer").on("mouseup", function() {
-      if(zoom_mouseDown == null)
-        return;
-      var svg = d3.select("svg").node();
-      if(svg == null)
-        return;
-      var zoom_mouseUp = d3.mouse(svg);
-      setupGraph(xAttributeName.val(), yAttributeName.val(), [zoom_mouseDown[0], zoom_mouseUp[0]], [zoom_mouseDown[1], zoom_mouseUp[1]]);
-      zoom_mouseDown = null;
   });
 
 });
