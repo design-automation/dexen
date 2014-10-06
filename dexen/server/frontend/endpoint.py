@@ -22,7 +22,7 @@
 import os
 import logging
 
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, flash
 from flask.ext.login import (login_user, logout_user, login_required,
                              current_user)
 from flask.helpers import make_response
@@ -66,9 +66,11 @@ def register():
         form = dexen_form.RegistrationForm(_user_mgr)
         if form.validate_on_submit():
             _user_mgr.register_user(form.username.data, form.password.data)
+            flash("Registration successfull. Please login.", "success")
             return redirect(url_for("login"))
         logger.debug("Errors %s", form.errors)
-        return "Registration failed"
+        flash("Username already exists.", "danger")
+        return redirect(url_for("register"))
     return render_template("register.html")
 
 
@@ -82,6 +84,7 @@ def login():
             logger.debug("%s logged in successfully", current_user.username)  # @UndefinedVariable
             return redirect(url_for("index"))  # @UndefinedVariable
         logger.debug("Login failed. Errors: %s", form.errors)
+        flash("Incorrect username or password.", "danger")
         return redirect(url_for("login"))
     print "Getting login.html"
     return render_template("login.html")
