@@ -71,8 +71,11 @@ class GenotypeMeta(object):
     def __init__(self):
         self.gene_metas = []
     def append(self, gene_metas):
-        for gene_meta in gene_metas:
-            self.gene_metas.append(gene_meta)
+        if hasattr(gene_metas, '__iter__'):
+            for gene_meta in gene_metas:
+                self.gene_metas.append(gene_meta)
+        else:
+            self.gene_metas.append(gene_metas)
     def set_values(self, values):
         assert len(self.gene_metas) == len(values)
         for gene_meta, value in zip(self.gene_metas, values):
@@ -213,12 +216,13 @@ class Individual(object):
     #set the phenotype and save to db
     def set_phenotype(self, phenotype):
         setattr(self, PHENOTYPE, phenotype)
-        self.data_object.set_value(PHENOTYPE, pickle.dumps(phenotype))
+        self.data_object.set_value(PHENOTYPE, phenotype)
 
     #get phenotype
     def get_phenotype(self):
         if not hasattr(self, PHENOTYPE):
-            phenotype = pickle.loads(str(self.data_object.get_value(PHENOTYPE))) #TODO: check if this is the best way
+            #phenotype = pickle.loads(str(self.data_object.get_value(PHENOTYPE))) #TODO: check if this is the best way
+            phenotype = self.data_object.get_value(PHENOTYPE)
             setattr(self, PHENOTYPE, phenotype)
         return getattr(self, PHENOTYPE)
         

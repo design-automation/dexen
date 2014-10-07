@@ -22,13 +22,19 @@
 import os
 import logging
 
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, flash
 from flask.ext.login import (login_user, logout_user, login_required,
                              current_user)
 from flask.helpers import make_response
 from flask.json import jsonify
 from flask.templating import render_template
 import pymongo
+
+from bson.binary import Binary
+from bson.objectid import ObjectId
+
+import cPickle as pickle
+import base64
 
 from dexen.common import db, task
 from dexen.server.frontend import app, login_mgr, form as dexen_form, proxy
@@ -60,9 +66,11 @@ def register():
         form = dexen_form.RegistrationForm(_user_mgr)
         if form.validate_on_submit():
             _user_mgr.register_user(form.username.data, form.password.data)
+            flash("Registration successfull. Please login.", "success")
             return redirect(url_for("login"))
         logger.debug("Errors %s", form.errors)
-        return "Registration failed"
+        flash("Username already exists.", "danger")
+        return redirect(url_for("register"))
     return render_template("register.html")
 
 
@@ -76,6 +84,7 @@ def login():
             logger.debug("%s logged in successfully", current_user.username)  # @UndefinedVariable
             return redirect(url_for("index"))  # @UndefinedVariable
         logger.debug("Login failed. Errors: %s", form.errors)
+        flash("Incorrect username or password.", "danger")
         return redirect(url_for("login"))
     print "Getting login.html"
     return render_template("login.html")
@@ -160,6 +169,68 @@ def download_file(job_name, file_name):
     response = make_response(content)
     response.headers["Content-Disposition"] = "attachment; filename=%s" % file_name
     return response
+
+@app.route("/data/<job_name>", methods=["GET"])
+@login_required
+def get_data(job_name):
+    try:
+        BINARY_KEYS = "keys"
+        DATA_ID = "_id"
+
+        logger.info("Getting all data for job: %s", job_name)
+        data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+        all_data = data_mgr.get_all_data()
+        metadata = []
+        for data in all_data:
+            keysWithBinaryVal = []
+            rec = {}
+            for key,val in data.items():
+                if isinstance(val, Binary):
+                    data[key] = ""
+                    keysWithBinaryVal.append(key)
+
+            if len(keysWithBinaryVal) != 0:
+                rec[BINARY_KEYS] = keysWithBinaryVal
+                rec[DATA_ID] = base64.b64encode(pickle.dumps(data[DATA_ID]))
+
+            data[DATA_ID] = str(data[DATA_ID])
+
+            metadata.append(rec)
+
+        return jsonify(data=all_data, metadata=metadata)
+    except:
+        logger.warning("Unexpected error while reading data objects: ", sys.exc_info()[0])
+        return make_response("Unable to read the data objects", 500, None);
+
+@app.route("/data/<job_name>/<enc_data_id>/<attr_name>", methods=["GET"])
+@login_required
+def download_data(job_name, enc_data_id, attr_name):
+    try:
+        logger.info("Getting data for job: %s, encoded id: %s, attr: %s", job_name, enc_data_id, attr_name)
+        data_id = pickle.loads(base64.b64decode(enc_data_id))
+        logger.info("Decoded data id: %s", str(data_id))
+        data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+        val = data_mgr.get_data_value(data_id, attr_name)
+
+        if val is None:
+            return make_response("Data not found", 400, None)
+
+        if not isinstance(val, Binary):
+            return make_response("Unsupported data type", 400, None)
+
+        response = make_response(val)
+        ext = request.args.get('ext')
+        if ext is None:
+            ext = ""
+        else:
+            ext = "." + ext
+        filename = "{0}.{1}.{2}{3}".format(job_name, str(data_id), attr_name, ext)
+        response.headers["Content-Disposition"] = "attachment; filename=" + filename
+
+        return response
+    except:
+        logger.warning("Unexpected error while reading the data object: ", sys.exc_info()[0])
+        return make_response("Unable to read the data object for job {0} with id {1} and attr_name {2}".format(job_name, enc_data_id, attr_name), 500, None);
 
 
 @app.route("/deneme")

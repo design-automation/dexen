@@ -1,29 +1,81 @@
 
+/* Colours */
+/* http://paletton.com/#uid=10Q0u0kl1Wx1x+IcEXDsUWkWEVB
+
+.color-primary-0 { color: #FFFAF3 } light
+.color-primary-1 { color: #FFD99A } 
+.color-primary-2 { color: #FFC058 }
+.color-primary-3 { color: #FFA919 }
+.color-primary-4 { color: #FF9F00 } dark 
+
+*/
+/* ===============================================================================================*/
+
+/* General */
+
+html {
+       overflow-y: scroll;
+}
+
+body {
+    background-color: white;
+}
+
+h1 {
+    position: relative;
+    left: -14px;
+    font-size: 24px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 0px;
+    color: #694200;
+}
 
 .btn {
-    margin: 5px;
+    background-color: #FFD99A;
+    margin: 2px;
+    padding: 2px 5px;
+    border: 1px solid #FFC058;
+    border-radius: 0px;
 }
 
-#loggedInName {
-    line-height: 44px;
-    margin-right: 15px;
-    font-weight: bold;
-}
-
-#mainHeader .btn {
-    margin: 5px;
+.btn:hover {
+    background-color: #FFC058;
 }
 
 .row {
     margin: 0px;
+    padding: 0px;
+}
+
+a {
+    color: #FF9F00;
+}
+
+/* mainHeader */
+
+#mainHeader a {
+    margin: 3px;
+    padding: 2px 5px;
+}
+
+#loggedInName {
+    line-height: 30px;
+    margin-right: 15px;
+    font-weight: normal;
+}
+
+/* jobsContainer */
+
+#jobsContainer {
+    background-color: #FFFAF3;
+    border: 1px solid #FFC058;
+    padding: 8px;
 }
 
 #jobsContainer .btn {
-
-}
-
-tbody {
-    height: 100px;
+    margin: 2px;
+    padding: 2px 5px;
 }
 
 #createJobDiv {
@@ -34,18 +86,103 @@ tbody {
     z-index: 150;
 }
 
-.row-selected {
-    background-color: palevioletred;
+/* Tabs */
+
+ul.nav-tabs > li > a {
+    padding: 2px 10px;
+    position:relative;
+    top: 1px;
+    color: black;
+    font-weight: normal;
+    background-color: white;
+    border: 1px solid #FFC058;
 }
+
+ul.nav-tabs > li > a:hover {
+    background-color: #FFD99A;
+}
+
+ul.nav-tabs > li.active > a {
+    background-color: #FFFAF3;
+    font-weight: bold;
+    border-top-color: #FFC058;
+    border-right-color: #FFC058;
+    border-bottom-color: white;
+    border-left-color: #FFC058;
+}
+
+ul.nav-tabs > li.active > a:hover {
+    background-color: #FFFAF3;
+    border-top-color: #FFC058;
+    border-right-color: #FFC058;
+    border-bottom-color: white;
+    border-left-color: #FFC058;
+}
+
+/* Tabbed Panes */
+
+
+.well {
+    background-color: #FFFAF3;
+    border: 1px solid #FFC058;
+    z-index: 100;
+    padding: 8px;
+}
+
+
+/* Tables */
+
+tbody {
+    height: 100px;
+}
+
+.table-bordered {
+    background-color: white;
+    border: 1px solid #FFC058;
+}
+
+tr.row-selected {
+    background-color: #FFD99A;
+}
+
+.form-control {
+    background-color: white;
+    margin: 2px;
+    padding: 2px 5px;
+    border: 1px solid #FFC058;
+    border-radius: 0px;
+}
+
+
+/* Plugins */
+
+#graphPane {
+    background-color: #FFFAF3;
+    border: 1px solid #FFC058;
+    padding: 8px;
+}
+
+/* Others */
 
 #periodicTimeFormGroup, #oneShotTimeFormGroup {
     display: none;
 }
 
 .progress-bar {
+    color: #FFC058;
     width:0%;
 }
 
 .upload-entry {
     display: none;
+}
+
+.clear {
+    clear: both;
+    height: 0;
+}
+
+div.col-xs-6 {
+    margin:0px;
+    padding:0px;
 }

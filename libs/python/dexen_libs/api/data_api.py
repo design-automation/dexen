@@ -155,14 +155,24 @@ def GetUserCollection(db_client): #NOT USED
 def GetJobDataCollection(db_client, user_name, job_name):
     return pymongo.collection.Collection(GetUserDB(db_client, user_name), job_name+".data")
 
+def GetJobDataIdCounterCollection(db_client, user_name, job_name):
+    return pymongo.collection.Collection(GetUserDB(db_client, user_name), job_name+".counters")
 
 def GetJobExecutionCollection(db_client, user_name, job_name):
     return pymongo.collection.Collection(GetUserDB(db_client, user_name),
                            job_name+".executions")
 
+def GetNextJobDataId(db_client, user_name, job_name):
+    coll = GetJobDataIdCounterCollection(db_client, user_name, job_name)
+    doc = coll.find_and_modify(query = { "_id": "data_id" }, update = { "$inc": { "seq": 1 } }, new = True)
+    if doc is None:
+        return None
+
+    return doc["seq"]
+
 # Data object stuff
 
-def DataObject(key=None): #NOT USED
+def DataObject(key=None, useRunningId=True): #NOT USED
     """Factory function for the user code to consume. Connects to mongodb and gets 
     a data object.
     
@@ -181,6 +191,10 @@ def DataObject(key=None): #NOT USED
     job_name = os.environ[con.ENV_JOB_NAME]
     execution_id = os.environ[con.ENV_EXECUTION_ID]
     coll = GetJobDataCollection(db_client, user_name, job_name)
+
+    if key is None and useRunningId:
+        key = GetNextJobDataId(db_client, user_name, job_name)
+
     return _DataObject(coll, execution_id, key)
 
 

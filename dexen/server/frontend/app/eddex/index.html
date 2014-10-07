@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: blue;
+}
+
+.tooltip {
+  position: absolute;
+  /*width: 200px;*/
+  /*height: 28px;*/
+  /*pointer-events: none;*/
+  border: 1px solid #FFC058;
+  background-color: #FFFAF3;
+  padding: 8px;
+}
+
+.spanLabel {
+  color: Brown;
+}
+
+#graphArea {
+  background-color: #FFFAF3;
+}
+
+#graphContainer {
+  margin-top: 8px;
+  border: 1px solid #FFC058;
+  background-color: white;
+}
+
+</style>
+<link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="../main.css">
+<script type="text/javascript" src="../lib/js/jquery-1.11.0.js"></script>
+<script type="text/javascript" src="../lib/js/iframeResizer.contentWindow.min.js"></script>
+<script type="text/javascript" src="../lib/js/d3.v3.min.js"></script>
+<script type="text/javascript" src="../util.js"></script>
+<script>
+var curData = null;
+var curJobName = null;
+var lastXAttr = null;
+var lastYAttr = null;
+var x_zoom = null;
+var y_zoom = null;
+var zoom_mouseDown = null;
+
+function clearGraph(){
+  $("#graphContainer").empty();
+}
+
+function clamp(val, trans, range){
+  val -= trans;
+  if(val < 0)
+    return 0;
+  if(val > range)
+    return range;
+  return val;
+}
+
+function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
+  clearGraph();
+
+  if(xAttr == null || yAttr == null)
+    return;
+
+  lastXAttr = xAttr;
+  lastYAttr = yAttr;
+  var htmlMargin = 20;
+      margin = {top: 20, right: 20, bottom: 30, left: 80},
+      width = window.innerWidth - margin.left - margin.right - 2 * htmlMargin,
+      height = window.screen.availHeight * .88 - margin.top - margin.bottom - 2 * htmlMargin;
+
+      // height = 3 * window.screen.availHeight / 4 - margin.top - margin.bottom - 2 * htmlMargin;
+      // height = window.innerHeight - margin.top - margin.bottom - 2 * htmlMargin;
+      // height = 300;
+
+  /* 
+   * value accessor - returns the value to encode for a given data object.
+   * scale - maps value to a visual display encoding, such as a pixel position.
+   * map function - maps from data value to display value
+   * axis - sets up axis
+   */ 
+
+  // setup x 
+  var xValue = function(d) { return d[xAttr]}, // data -> value
+      xScale = d3.scale.linear().range([0, width]), // value -> display
+      xMap = function(d) { return xScale(xValue(d));}, // data -> display
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
+  // setup y
+  var yValue = function(d) { return d[yAttr];}, // data -> value
+      yScale = d3.scale.linear().range([height, 0]), // value -> display
+      yMap = function(d) { return yScale(yValue(d));}, // data -> display
+      yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+  var data = [];
+  $.each(curData.data, function(i, row){
+    if(row.hasOwnProperty(xAttr) && row.hasOwnProperty(yAttr)){
+      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr])){
+        var metadata = curData.metadata[i];
+        if(metadata.hasOwnProperty("_id") && 
+          metadata.hasOwnProperty("keys") && 
+          metadata["keys"].indexOf("phenotype") != -1){
+          row["phenotype"] = metadata["_id"];
+        }else{
+          row["phenotype"] = "";
+        }
+
+        data.push(row);
+      }
+    }
+  });
+
+  // add the graph canvas to the body of the webpage  
+  var svg = d3.select("#graphContainer").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.select("svg").append("svg:rect").
+        attr("id", "zoom_rect").
+        attr("fill-opacity", 0).
+        attr("stroke", "black").
+        attr("stroke-width", 1).
+        attr("visibility","hidden");
+
+  // add the tooltip area to the webpage
+  var tooltip = d3.select("#graphContainer").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+  // don't want dots overlapping axis, so add in buffer to data domain
+  if(x_zoom != null && y_zoom != null){
+    xScale.domain(x_zoom);
+    yScale.domain(y_zoom);
+  }else{
+    xScale.domain([d3.min(data, xValue), d3.max(data, xValue)]);
+    yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
+  }  
+
+  if(xZoomRange != null && yZoomRange != null){
+    console.log("Input:");
+    console.log(xZoomRange[0] + "," + xZoomRange[1]);
+    console.log(yZoomRange[0] + "," + yZoomRange[1]);
+
+    xZoomRange[0] = clamp(xZoomRange[0], margin.left, width);
+    xZoomRange[1] = clamp(xZoomRange[1], margin.left, width);
+    yZoomRange[0] = clamp(yZoomRange[0], margin.top, height);
+    yZoomRange[1] = clamp(yZoomRange[1], margin.top, height);
+
+    console.log("Clamped:");
+    console.log(xZoomRange[0] + "," + xZoomRange[1]);
+    console.log(yZoomRange[0] + "," + yZoomRange[1]);
+
+    x_zoom = [xScale.invert(xZoomRange[0]), xScale.invert(xZoomRange[1])].sort(d3.ascending);
+    y_zoom = [yScale.invert(yZoomRange[0]), yScale.invert(yZoomRange[1])].sort(d3.ascending);
+
+    console.log("Inverted:");
+    console.log(x_zoom[0] + "," + x_zoom[1]);
+    console.log(y_zoom[0] + "," + y_zoom[1]);
+
+    xScale.domain(x_zoom);
+    yScale.domain(y_zoom);
+
+    var filtered = [];
+    $.each(data, function(i, row){
+      if(row[xAttr] >= x_zoom[0] && row[xAttr] <= x_zoom[1] &&
+          row[yAttr] >= y_zoom[0] && row[yAttr] <= y_zoom[1]){
+        filtered.push(row);
+      }
+    });
+
+    data = filtered;
+  }
+
+  // x-axis
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text(xAttr);
+
+  // y-axis
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text(yAttr);
+
+  // draw dots
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+      .attr("cx", xMap)
+      .attr("cy", yMap)
+      .style("fill", "DodgerBlue") 
+      .on("mouseover", function(d, e) {
+          var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"] + "<br/>" +
+                        "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
+                        "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
+          if(d.hasOwnProperty("phenotype")){
+            var phenoVal = d["phenotype"];
+            if(typeof(phenoVal) == "string" && phenoVal.length > 0){
+              htmlStr +=  "<br/><span class='spanLabel'>phenotype</span>: <a href='" + 
+                          "/data/" + encodeURIComponent(curJobName) + "/" + encodeURIComponent(d["phenotype"]) + "/phenotype?ext=bgeo'>Download</a>";
+            }
+          }
+              
+          tooltip.transition()
+               .duration(200)
+               .style("opacity", 1);
+          tooltip.html(htmlStr)
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY) + "px");
+      });
+
+  d3.select("body").on("click", function(){
+    hideTooltip(tooltip);
+  });
+}
+
+function hideTooltip(tooltip){
+  tooltip.html("")
+             .style("left", "0px")
+             .style("top", "0px")
+             .style("opacity", 0);
+}
+
+function onDataChanged(data){
+  x_zoom = null;
+  y_zoom = null;
+  curData = data;
+  var attrsSet = {};
+  var attrs = [];
+  $.each(data.data, function(i, row){
+    $.each(row, function(key, val){
+      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype"){
+        if(!attrsSet.hasOwnProperty(key)){
+          attrsSet[key] = "";
+          attrs.push(key);
+        }
+      }
+    });
+  });
+  var xAttributeName = $("#xAttributeName");
+  var yAttributeName = $("#yAttributeName");
+  xAttributeName.empty();
+  yAttributeName.empty();
+  $.each(attrsSet, function(key){
+    xAttributeName.append("<option value='" + key + "'>" + key + "</option>");
+    yAttributeName.append("<option value='" + key + "'>" + key + "</option>");
+  });
+
+  if(lastXAttr != null){
+    xAttributeName.val(lastXAttr);
+    lastXAttr = xAttributeName.val();
+  }
+
+  if(lastYAttr != null){
+    yAttributeName.val(lastYAttr);
+    lastYAttr = yAttributeName.val();
+  }
+
+  if(lastXAttr != null && lastYAttr != null && lastXAttr != lastYAttr){
+    setupGraph(lastXAttr, lastYAttr, null, null);
+  }else if(attrs.length >= 2){
+    xAttributeName.val(attrs[0]);
+    yAttributeName.val(attrs[1]);
+    setupGraph(attrs[0], attrs[1], null, null);
+  }else{
+    clearGraph();
+  }
+}
+
+function selectedAttrChanged(e){
+  x_zoom = null;
+  y_zoom = null;
+  var xAttributeName = $("#xAttributeName");
+  var yAttributeName = $("#yAttributeName");
+  var xAttr = xAttributeName.val();
+  var yAttr = yAttributeName.val();
+  if(xAttr == null || yAttr == null || xAttr == yAttr){
+    clearGraph();
+    return;
+  }
+
+  setupGraph(xAttr, yAttr, null, null);
+}
+
+function refreshData(){
+  if(curJobName == null){
+    clearGraph();
+    return;
+  }
+
+  var ajaxUrl = "/data/" + curJobName;
+      
+  $.ajax({
+    type: "GET",
+    url: ajaxUrl,
+    dataType: "json",
+    success: function (data) {
+      onDataChanged(data);
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      alert("Unable to get job data. Status: " + textStatus);
+      clearGraph();
+    }
+  });
+}
+
+// Redraw the zoom rectangle
+function updateZoomRectange(zoom_mousedown, zoom_mouseup) {
+    var x = d3.min([zoom_mousedown[0], zoom_mouseup[0]]);
+    var y = d3.min([zoom_mousedown[1], zoom_mouseup[1]]);
+    var width = Math.abs(zoom_mousedown[0] - zoom_mouseup[0]);
+    var height = Math.abs(zoom_mousedown[1] - zoom_mouseup[1]);
+
+    d3.select('#zoom_rect').
+        attr("x", x).
+        attr("y", y).
+        attr("width", width).
+        attr("height", height);
+}
+
+function resetZoom(){
+  zoom_mouseDown = null;
+  x_zoom = null;
+  y_zoom = null;
+  var xAttributeName = $("#xAttributeName");
+  var yAttributeName = $("#yAttributeName");
+  var xAttr = xAttributeName.val();
+  var yAttr = yAttributeName.val();
+  if(xAttr != null && yAttr != null){
+    setupGraph(xAttr, yAttr, null, null);
+  }else{
+    clearGraph();
+  }
+}
+
+$(document).ready(function(){
+  $("#refreshBtn").on("click", refreshData);
+
+  var xAttributeName = $("#xAttributeName");
+  var yAttributeName = $("#yAttributeName");
+
+  xAttributeName.on("change", selectedAttrChanged);
+  yAttributeName.on("change", selectedAttrChanged);
+
+  $(window).on("message", function(e) {
+      var evt = e.originalEvent;
+      var msgData = ''+evt.data;
+      var msgId = "[DexenJob]";
+      var msgIdLen = msgId.length;
+      if(msgId !== msgData.substr(0,msgIdLen))
+        return;
+
+      var jobName = msgData.substr(msgIdLen, msgData.length-msgIdLen);
+      if(jobName.length == 0){
+        console.log("Empty job name received");
+        return;
+      }
+
+      curJobName = jobName;
+
+      refreshData();
+  });
+
+  $("#resetZoomBtn").on("click", function(){
+    resetZoom();
+  });
+
+  // MOUSE EVENT: mousedown
+  d3.select("#graphContainer").on("click", function() {
+    var svg = d3.select("svg").node();
+    if(svg == null)
+      return;
+
+    var tooltip = d3.select(".tooltip");
+    if(!tooltip.empty() && tooltip.html().length > 0){
+      hideTooltip(tooltip);
+    }
+
+    if(zoom_mouseDown != null){
+      var zoom_mouseUp = d3.mouse(svg);
+      setupGraph(xAttributeName.val(), yAttributeName.val(), [zoom_mouseDown[0], zoom_mouseUp[0]], [zoom_mouseDown[1], zoom_mouseUp[1]]);
+      zoom_mouseDown = null;
+      return;
+    }
+
+    zoom_mouseDown = d3.mouse(svg);
+    d3.select("#zoom_rect").attr("visibility","visible");
+  });
+
+  d3.select("#graphContainer").on("mousemove", function(){
+    if(zoom_mouseDown == null)
+      return;
+
+    var zoom_mouse = d3.mouse(d3.select('svg').node());
+    if (zoom_mouseDown != null) {
+        updateZoomRectange(zoom_mouseDown, zoom_mouse);
+    }
+  });
+
+  d3.select("body").on("keydown", function() {
+    if(d3.event.keyCode == 27){
+      if(zoom_mouseDown){
+        zoom_mouseDown = null;
+        updateZoomRectange([0, 0], [0, 0]);
+        d3.select("#zoom_rect").attr("visibility","hidden");
+      }
+
+      var tooltip = d3.select(".tooltip");
+      if(!tooltip.empty() && tooltip.html().length > 0){
+        hideTooltip(tooltip);
+      }
+    }
+  });
+
+});
+
+</script>
+
+</head>
+
+<body>
+<div id="graphArea">
+  <form class="form-inline" role="form">
+    <div class="form-group">
+      <button id="refreshBtn" type="button" class="btn">Refresh</button>
+    </div>
+    <div class="form-group">
+      <button id="resetZoomBtn" type="button" class="btn">Reset Zoom</button>
+    </div>
+    <div class="form-group">
+      <label for="xAxisAttributeSelection">X-Axis:</label>
+      <select id="xAttributeName">
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="yAxisAttributeSelection">Y-Axis:</label>
+      <select id="yAttributeName">
+      </select>
+    </div>
+  </form>
+  <div id="graphContainer">
+  </div>
+</div>
+</body>
+</html>

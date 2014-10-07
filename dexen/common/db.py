@@ -104,11 +104,23 @@ def GetJobDataCollection(db_client, user_name, job_name):
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".data")
 
+def GetJobDataIdCounterCollection(db_client, user_name, job_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), job_name+".counters")
 
 def GetJobExecutionCollection(db_client, user_name, job_name):
     """
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".executions")
+
+def GetNextJobDataId(db_client, user_name, job_name):
+    counterColl = GetJobDataIdCounterCollection(db_client, user_name, job_name)
+    doc = counterColl.find_and_modify(query = { "_id": "data_id" }, update = { "$inc": { "seq": 1 } }, new = True)
+    if doc is None:
+        return None
+
+    return doc["seq"]
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.
@@ -598,3 +610,15 @@ class JobDataManager(object):
             self.coll.update({"_id": modified_id.get_value()}, doc)
         self.logger.debug("Removing execution ids.")
         self.remove_execution_ids(modified_ids, execution_id)
+
+    def get_all_data(self):
+        result = []
+        for data in self.coll.find({}, fields={ATTRS_BEING_MODIFIED : False, FIELD_ROLLBACK : False}):
+            result.append(data)
+        return result
+
+    def get_data_value(self, data_id, attr_name):
+        res = self.coll.find_one(data_id, fields=[attr_name])
+        if not res is None:
+            return res.get(attr_name)
+        return None

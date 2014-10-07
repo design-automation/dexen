@@ -28,7 +28,7 @@ import pymongo
 from dexen.common import constants, db
 
 
-def DataObject(key=None):
+def DataObject(key=None, useRunningId=True):
     """Factory function for the user code to consume.
     
     Returns:
@@ -46,6 +46,10 @@ def DataObject(key=None):
     job_name = os.environ[constants.ENV_JOB_NAME]
     execution_id = os.environ[constants.ENV_EXECUTION_ID]
     coll = db.GetJobDataCollection(db_client, user_name, job_name)
+
+    if key is None and useRunningId:
+        key = db.GetNextJobDataId(db_client, user_name, job_name)
+
     return _DataObject(coll, execution_id, key)
 
 

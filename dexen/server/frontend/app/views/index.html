@@ -5,146 +5,184 @@
     <!--<script type="text/javascript" src="../lib/js/bootstrap.js"></script>-->
     <!--<script type="text/javascript" src="lib/js/jquery-1.11.0.js"></script>-->
 
+
+    
     <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.css">
     <!--<link rel="stylesheet" type="text/css" href="../lib/css/TableTools.css">-->
-    <link rel="stylesheet" type="text/css" href="main.css">
+    
     <link rel="stylesheet" type="text/css" href="../lib/css/jquery.fileupload.css">
     <!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">-->
+    <!-- <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css"> -->
+    <link rel="stylesheet" type="text/css" href="../lib/css/dataTables.bootstrap.css">
 
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../lib/css/dataTables.colVis.css">
+    <link rel="stylesheet" type="text/css" href="../lib/css/dataTables.colReorder.css">
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+
+    <script type="text/javascript" src="../lib/js/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="../lib/js/bootstrap.js"></script>
     <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js"></script>-->
     <script type="text/javascript" src="../lib/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="../lib/js/jquery.ui.widget.js"></script>
     <script type="text/javascript" src="../lib/js/jquery.iframe-transport.js"></script>
     <script type="text/javascript" src="../lib/js/jquery.fileupload.js"></script>
+    <script type="text/javascript" src="../lib/js/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" src="../lib/js/dataTables.colVis.js"></script>
+    <script type="text/javascript" src="../lib/js/dataTables.colReorder.js"></script>
+    <script type="text/javascript" src="../lib/js/iframeResizer.min.js"></script>
+    
     <!--<script type="text/javascript" src="../lib/js/ZeroClipboard.js"></script>-->
     <!--<script type="text/javascript" src="../lib/js/TableTools.js"></script>-->
-    <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="task_registration.js"></script>
     <script type="text/javascript" src="job_files.js"></script>
     <script type="text/javascript" src="util.js"></script>
     <script type="text/javascript" src="table.js"></script>
     <script type="text/javascript" src="jobs_table.js"></script>
     <script type="text/javascript" src="tasks_table.js"></script>
+    <script type="text/javascript" src="executions.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+
+
 </head>
 
 
 <body class="container-fluid">
 <div id="mainHeader" class="row">
     <div class="col-lg-6">
-        <h2>Dexen Jobs</h2>
+        <h1>Dexen</h1>
     </div>
     <div class="col-lg-6">
-        <a id="logoutBtn" href="/logout" class="btn btn-primary pull-right">Logout</a>
-        <button id="adminBtn" class="btn btn-primary pull-right">Admin</button>
-        <button id="jobsBtn" class="btn btn-primary pull-right">Jobs</button>
+        <a id="logoutBtn" href="/logout" class="pull-right">Logout</a>
+        <!-- <button id="adminBtn" class="btn pull-right" disabled="disabled">Admin</button> -->
+        <!-- <button id="jobsBtn" class="btn pull-right" disabled="disabled">Jobs</button> -->
         <span id="loggedInName" class="pull-right">{{username}} logged in</span>
     </div>
 </div>
 
 <div id="jobsContainer" class="well">
     <div class="row">
-        <div class="col-lg-6">
-            <label>Job: </label>
-            <span></span>
-        </div>
-        <div class="col-lg-6">
-            <button id="exportJobBtn" class="btn btn-primary pull-right">Export</button>
-            <button id="importJobBtn" class="btn btn-primary pull-right">Import</button>
-            <button id="deleteJobBtn" class="btn btn-primary pull-right">Delete</button>
-            <button id="stopJobBtn" class="btn btn-primary pull-right">Stop</button>
-            <button id="runJobBtn" class="btn btn-primary pull-right">Run</button>
-            <form role="form" class="form-inline pull-right">
+        <!-- <div class="col-lg-2"> -->
+            <!-- <label>Jobs: </label> -->
+            <!-- <span></span> -->
+        <!-- </div> -->
+        <!-- <div class="col-lg-10"> -->
+            <button id="collapseBtn" class="btn">Collapse</button>
+            <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
+            <input type="checkbox" name="autoRefresh" disabled="disabled"/> Auto Refresh
+            
+            <button class="btn pull-right" disabled="disabled">Export As CSV</button>
+            <button id="exportJobBtn" class="btn pull-right" disabled="disabled">Export</button>
+            <button id="importJobBtn" class="btn pull-right" disabled="disabled">Import</button>
+            <button id="deleteJobBtn" class="btn pull-right" disabled="disabled">Delete</button>
+            <button id="stopJobBtn" class="btn pull-right" disabled="disabled">Stop</button>
+            <button id="runJobBtn" class="btn pull-right" disabled="disabled">Run</button>
+            <button id="createJobBtn" class="btn pull-right" type="button">Create</button>
+<!--             <div role="form" class="form-inline pull-right">
                 <div class="form-group">
                     <label for="jobNameTextBox" class="control-label">Job Name:</label>
                     <input id="jobNameTextBox" type="text" class="form-control">
-                    <button id="createJobBtn" class="btn btn-primary" type="button">Create</button>
+                    <button id="createJobBtn" class="btn" type="button">Create</button>
                 </div>
-            </form>
-        </div>
+            </div> -->
+        <!-- </div> -->
     </div>
-    <table id="jobsTable" class="table table-bordered">
-        <tbody></tbody>
-    </table>
-    <div class="row">
-        <button id="refreshAllJobsBtn" class="btn">Refresh All</button>
-        <input type="checkbox" name="autoRefresh"/> Auto Refresh
-        <button class="btn pull-right">Export As CSV</button>
+    <div id="jobsPanel" class="collapse in">
+        <table id="jobsTable" class="table table-bordered">
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
 <div>
     <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="#tasksPane" data-toggle="tab">Tasks</a>
+        <li class="disabled">
+            <a href="#filesPane" data-toggle="tab">Files</a>
         </li>
-        <li>
+        <li class="disabled">
+            <a href="#eventTasksPane" data-toggle="tab">Event Tasks</a>
+        </li>
+        <li class="disabled">
+            <a href="#dataflowTasksPane" data-toggle="tab">Data Tasks</a>
+        </li>
+        <li class="disabled">
             <a href="#executionsPane" data-toggle="tab">Executions</a>
         </li>
-        <li>
-            <a href="#dataPane" data-toggle="tab">Data</a>
+        <li class="disabled">
+            <a href="#dataPane" data-toggle="tab">Data Objects</a>
+        </li>
+        <li class="disabled">
+            <a href="#graphPane" data-toggle="tab">Eddex</a>
         </li>
     </ul>
     <div class="tab-content">
-        <div id="tasksPane" class="tab-pane active">
+        <div id="filesPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label>Dataflow Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterDataflowTaskBtn" class="btn pull-right">De-Register</button>
-                    <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
+                    <!-- <div class="col-lg-8"> -->
+                        <button id="refreshJobFilesBtn" class="btn">Refresh</button>
+                        <button class="btn pull-right" disabled="disabled">Export as CSV</button>
+                        <button id="downloadJobFileBtn" class="btn pull-right">Download</button>
+                        <button id="uploadJobFileBtn" class="btn pull-right">Upload</button>
+                    <!-- </div> -->
                 </div>
-                <table id="dataflowTasksTable" class="table table-bordered">
+                <table id="jobFilesTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
-                </div>
             </div>
 
+        </div>
+        <div id="eventTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="control-label">Event Task:</label>
-                    <button class="btn pull-right">Delete</button>
-                    <button id="deregisterEventTaskBtn" class="btn pull-right">De-Register</button>
+                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
+                    <button class="btn pull-right" disabled="disabled">Delete</button>
+                    <button id="deregisterEventTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
                     <button id="registerEventTaskBtn" class="btn pull-right">Register</button>
                 </div>
                 <table id="eventTasksTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshEventTasksBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
-                </div>
             </div>
-
+        </div>
+        <div id="dataflowTasksPane" class="tab-pane">
             <div class="well">
                 <div class="row">
-                    <label class="col-lg-4">File: </label>
-                    <div class="col-lg-8">
-                        <button id="downloadJobFileBtn" class="btn pull-right">Download</button>
-                        <button id="uploadJobFileBtn" class="btn pull-right">Upload</button>
-                    </div>
+                    <button id="refreshDataflowTasksBtn" class="btn">Refresh</button>
+                    <button class="btn pull-right" disabled="disabled">Export as CSV</button>
+                    <button class="btn pull-right" disabled="disabled">Delete</button>
+                    <button id="deregisterDataflowTaskBtn" class="btn pull-right" disabled="disabled">De-Register</button>
+                    <button id="registerDataflowTaskBtn" class="btn pull-right">Register</button>
                 </div>
-                <table id="jobFilesTable" class="table table-bordered">
+                <table id="dataflowTasksTable" class="table table-bordered">
                     <tbody></tbody>
                 </table>
-                <div class="row">
-                    <button id="refreshJobFilesBtn" class="btn">Refresh</button>
-                    <button class="btn pull-right">Export as CSV</button>
-                </div>
             </div>
-
         </div>
         <div id="executionsPane" class="tab-pane">
-            <table id="executionsTable" class="table table-bordered">
-                <tbody></tbody>
-            </table>
+            <div class="well">
+                <div class="row">
+                    <button id="refreshExecutionsTableBtn" class="btn">Refresh</button>
+                </div>
+                <table id="executionsTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <div id="dataPane" class="tab-pane">
-            Data
+            <div class="well">
+                <div class="row">
+                    <button id="refreshJobDataTableBtn" class="btn">Refresh</button>
+                </div>
+                <table id="jobDataTable" class="table table-bordered">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="graphPane" class="tab-pane">
         </div>
     </div>
 </div>
@@ -154,7 +192,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4>Register Task</h4>
+                <h4>Register Event Task</h4>
             </div>
             <div class="modal-body">
                 <form id="eventTaskRegistrationForm" class="form-horizontal" role="form">
@@ -197,7 +235,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="eventTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+                <button id="eventTaskRegistrationSubmitBtn" class="btn">Submit</button>
             </div>
         </div>
     </div>
@@ -208,7 +246,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4>Register Dataflow Task</h4>
+                <h4>Register Data Task</h4>
             </div>
             <div class="modal-body">
                 <form id="dataflowTaskRegistrationForm" class="form-horizontal" role="form">
@@ -240,7 +278,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal">Cancel</button>
-                <button id="dataflowTaskRegistrationSubmitBtn" class="btn btn-primary">Submit</button>
+                <button id="dataflowTaskRegistrationSubmitBtn" class="btn">Submit</button>
             </div>
         </div>
     </div>
@@ -270,13 +308,13 @@
                             </div>
                         </div>
                         <div class="col-lg-3">
-                            <button class="btn btn-primary">Upload</button>
+                            <button class="btn">Upload</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                <button class="btn" data-dismiss="modal">Done</button>
             </div>
         </div>
     </div>

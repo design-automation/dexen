@@ -63,7 +63,25 @@ function updateJobFilesTable(files) {
     $.each(files, function(index, file) {
         file['upload_time'] = timestampToDateString(file['upload_time']);
     });
-    $jobFilesTable.dataTable().fnAddData(files);
+    if(files.length > 0)
+        $jobFilesTable.dataTable().fnAddData(files);
+}
+
+function refreshJobFiles() {
+    var url = "/files_metadata/" + getCurrentJobNameFromTable();
+    var xhr = $.getJSON(url);
+
+    xhr.done(function(data) {
+        $('#downloadJobFileBtn').disable(true);
+        if(data == null){
+            updateJobFilesTable([]);
+        }
+        else{
+            console.log('Job files metadata has been received jobs files metadata: ' + data.files_metadata);
+            updateJobFilesTable(data.files_metadata);
+            
+        }        
+    });
 }
 
 function setupFilesTable() {
@@ -87,7 +105,7 @@ function setupFilesTable() {
     });
 
     setupTable($jobFilesTable, function($tr) {
-        console.log('job files table row selected callback.');
+        $downloadJobFileBtn.disable(false);
     });
 
     $downloadJobFileBtn.click(function() {
@@ -102,11 +120,7 @@ function setupFilesTable() {
         $fileUploadModal.modal();
     });
 
-    $refreshJobFilesBtn.click(function() {
-        var url = '/files_metadata/' + getCurrentJobNameFromTable();
-        var xhr = $.getJSON(url);
-        xhr.done(function(data) {
-            console.log('refresh files are done: ', data.files_metadata);
-        });
-    });
+    $refreshJobFilesBtn.click(refreshJobFiles);
+
+    $fileUploadModal.on('hidden.bs.modal', refreshJobFiles);
 }

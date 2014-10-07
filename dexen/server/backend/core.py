@@ -188,11 +188,13 @@ class ServerCore(threading.Thread):
                 logger.info("%s is already created so not creating job.",
                             job_name)
                 return False
+
             self.job_mgrs[field] = jm.JobManager(user_name, job_name,
                                               self.db_client)
             self.execution_mgrs[field] = db.ExecutionManager(self.db_client,
                                                              user_name,
                                                              job_name)
+            self.job_mgrs[field].initDataIdCounter()
 
     def delete_job(self, user_name, job_name):
         pass

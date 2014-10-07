@@ -96,7 +96,7 @@ def start(server_addr, worker_name, job_name=None):
     server_conn = remoting.connect(server_addr)
     my_addr = remoting.EndPointAddress(remoting.get_my_ip(), worker_endpoint.port)
     _node_name = server_conn.root.register_worker(my_addr, _worker_name)
-    time.sleep(5)
+    time.sleep(2)
     server_conn.close()
     worker_endpoint.start()
 

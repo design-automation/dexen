@@ -28,7 +28,7 @@ function createJob(jobName) {
 
     xhr.done(function() {
         console.log("/create_job post request is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
@@ -38,7 +38,7 @@ function runJob(jobName) {
 
     xhr.done(function() {
         console.log("Running job: " + jobName + "is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
@@ -48,30 +48,21 @@ function stopJob(jobName) {
 
     xhr.done(function() {
         console.log("Stopping job: " + jobName + "is successful.");
-        refreshJobs();
+        refreshJobs(jobName);
     });
 }
 
-function refreshJobs() {
+function refreshJobs(jobName) {
     var xhr = $.getJSON('/jobs');
 
     xhr.done(function(data) {
         console.log('Downloading jobs successful, jobs data: ' + data['jobs']);
-        updateJobsTable(data.jobs);
-    });
-}
-
-function refreshJobFiles() {
-    var url = "/files_metadata/" + getCurrentJobNameFromTable();
-    var xhr = $.getJSON(url);
-
-    xhr.done(function(data) {
-        console.log('Job files metadata has been received jobs files metadata: ' + data.files_metadata);
-        updateJobFilesTable(data.files_metadata);
+        updateJobsTable(data.jobs, jobName);
     });
 }
 
 function setupJobActions() {
+    var $jobNameTextBox = $('#jobNameTextBox');
     var $createJobBtn = $('#createJobBtn');
     var $runJobBtn = $('#runJobBtn');
     var $stopJobBtn = $('#stopJobBtn');
@@ -80,9 +71,18 @@ function setupJobActions() {
     var $refreshEventTasksBtn = $('#refreshEventTasksBtn');
     var $refreshDataflowTasksBtn = $('#refreshDataflowTasksBtn');
 
+    $jobNameTextBox.keypress(function(event) {
+        if ( event.which == 13 ) {
+            $createJobBtn.trigger('click');
+        }
+    });
+
     $createJobBtn.click(function() {
-        var jobName = $('#jobNameTextBox').val();
-        createJob(jobName);
+        var jobName = prompt("Please enter a job name", "");
+
+        if (jobName != null && jobName.length > 0) {
+            createJob(jobName);
+        }
     });
 
     $runJobBtn.click(function() {
@@ -104,6 +104,43 @@ function setupJobActions() {
     })
 }
 
+function TabContent(fnRefreshTable){
+    this.curJobName = null;
+    this.refreshTable = fnRefreshTable;
+    this.onChange = function(jobName){
+        if(this.curJobName != jobName){
+            this.curJobName = jobName;
+            this.refreshTable();
+        }
+    };
+}
+
+
+var tabContents = {
+    "#filesPane" : new TabContent(refreshJobFiles),
+    "#eventTasksPane" : new TabContent(refreshEventTasksTable),
+    "#dataflowTasksPane" : new TabContent(refreshDataflowTasksTable),
+    "#executionsPane" : new TabContent(refreshExecutionsTable),
+    "#dataPane" : new TabContent(refreshJobDataTable),
+    "#graphPane" : new TabContent(refreshGraph)
+};
+
+function setupTabs(){
+    var $tabs = $(".nav-tabs a[data-toggle=tab]");
+    $tabs.on("click", function(e) {
+        $li = $(this).parent();
+        if ($li.hasClass("disabled")) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $tabs.on('shown.bs.tab', function (e) {
+        var $a = $(e.target);        
+        var href = $a.attr("href");
+        tabContents[href].onChange(getCurrentJobNameFromTable());
+    })
+}
 
 $(document).ready(function() {
     console.log('The document is ready');
@@ -112,4 +149,10 @@ $(document).ready(function() {
     setupFilesTable();
     setupJobActions();
     setupTasksRegistration();
+    setupExecutionsTable();
+    setupJobDataTable();
+    setupTabs();
+    setupGraph();
+
+    refreshJobs();
 });
