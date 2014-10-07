@@ -1,6 +1,7 @@
 @echo on
 c:
-start mongod
+mkdir -p "%temp%/dexen_db"
+start mongod --dbpath %temp%/dexen_db
 timeout 5
 
 REM start db --log-path dexen_server_backend.log
