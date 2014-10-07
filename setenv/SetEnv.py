@@ -81,6 +81,23 @@ def main():
 
     dexen_dir =  os.path.split(os.getcwd())[0] #go back one dir
 
+    #get the mongodb path from the user
+    def is_mongodb_path(path):
+        exe_file = os.path.join(path, 'bin', 'mongod.exe')
+        if os.path.isfile(exe_file):
+            return True
+        return False
+
+    valid_path = False
+    while not valid_path:
+        mongodb_path = raw_input("\nType the path where Mongodb is installed (you can use cut and paste):\n>")
+        print "Checking the path that you entered: " + mongodb_path
+        valid_path = is_mongodb_path(mongodb_path)
+        if valid_path:
+            print "The path looks good :)"
+        else:
+            print "The path you entered was not valid :("
+
     # --------------------------------------------------------------------------------
     # Set up Dexen paths
     # --------------------------------------------------------------------------------
@@ -89,7 +106,7 @@ def main():
     setenv_add_values("DEXEN", dexen_dir)
 
     setenv_del_matches("PATH", "dexen")
-    setenv_add_values("PATH", dexen_dir + "\\bin")
+    setenv_add_values("PATH", [mongodb_path + "\\bin", dexen_dir + "\\bin"])
 
     setenv_del_matches("PYTHONPATH", "dexen")
     setenv_add_values("PYTHONPATH", [dexen_dir, dexen_dir + "\\libs\\python"])
