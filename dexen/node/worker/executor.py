@@ -28,7 +28,7 @@ from dexen.common.constants import ENV_DB_IP, ENV_DB_PORT
 from dexen.common.db import FileManager
 from dexen.node import env_mgr
 
-_last_update_time = 0
+_last_update_times = {}
 
 class TaskExecutor(object):
     """ Manages the environment in order to enable a task to be executed. One instance of this class
@@ -71,15 +71,21 @@ class TaskExecutor(object):
 
         TODO: add documentation
         """
-        global _last_update_time
+        global _last_update_times
+
         rootdir = env_mgr.get_job_dir(self.worker_name,
                                       self.execution.user_name,
                                       self.execution.job_name, create=True)
+
+        lastUpdateTime = _last_update_times.get(rootdir, 0)
+
         self.last_dir = os.getcwd()
         os.chdir(rootdir)
         self.logger.debug("The rootdir is: %s", rootdir)
-        file_names = self.file_mgr.get_recent_files(self.execution.job_name, _last_update_time)
-        _last_update_time = time.time()
+        newUpdateTime = time.time()
+        file_names = self.file_mgr.get_recent_files(self.execution.job_name, lastUpdateTime)
+        _last_update_times[rootdir] = newUpdateTime
+
         for file_name in file_names:
             self.logger.info("Retrieving file %s", file_name)
             remote_file = self.file_mgr.get_file(self.execution.job_name, file_name)
