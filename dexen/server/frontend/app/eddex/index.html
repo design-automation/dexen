@@ -71,6 +71,22 @@ function clamp(val, trans, range){
   return val;
 }
 
+function isAlive(datum){
+  return datum.hasOwnProperty("alive") && datum["alive"];
+}
+
+function getCircleRadius(datum){
+  return isAlive(datum)? 3.5 : 2.75;
+}
+
+function getCircleFillColor(datum){
+  return isAlive(datum)? "DodgerBlue" : "LightGray";
+}
+
+function getCircleStrokeColor(datum){
+  return isAlive(datum)? "Blue" : "Gray";
+}
+
 function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
   clearGraph();
 
@@ -217,10 +233,11 @@ function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
       .data(data)
     .enter().append("circle")
       .attr("class", "dot")
-      .attr("r", 3.5)
+      .attr("r", getCircleRadius)
       .attr("cx", xMap)
       .attr("cy", yMap)
-      .style("fill", "DodgerBlue") 
+      .style("fill", getCircleFillColor)
+      .style("stroke", getCircleStrokeColor)
       .on("mouseover", function(d, e) {
           var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"] + "<br/>" +
                         "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
