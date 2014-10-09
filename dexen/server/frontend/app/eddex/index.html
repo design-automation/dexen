@@ -242,7 +242,8 @@ function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
       });
 
   d3.select("body").on("click", function(){
-    hideTooltip(tooltip);
+    if(!isWithin(tooltip.node(), d3.event.target))
+      hideTooltip(tooltip);
   });
 }
 
@@ -365,6 +366,10 @@ function resetZoom(){
   }
 }
 
+function isWithin(container, elem){
+  return container == elem || $(container).find(elem).length > 0;
+}
+
 $(document).ready(function(){
   $("#refreshBtn").on("click", refreshData);
 
@@ -405,6 +410,9 @@ $(document).ready(function(){
 
     var tooltip = d3.select(".tooltip");
     if(!tooltip.empty() && tooltip.html().length > 0){
+      if(isWithin(tooltip.node(), d3.event.target))
+        return;
+
       hideTooltip(tooltip);
     }
 
@@ -431,15 +439,16 @@ $(document).ready(function(){
 
   d3.select("body").on("keydown", function() {
     if(d3.event.keyCode == 27){
+      var tooltip = d3.select(".tooltip");
+      if(!tooltip.empty() && tooltip.html().length > 0){
+        hideTooltip(tooltip);
+        return;
+      }
+
       if(zoom_mouseDown){
         zoom_mouseDown = null;
         updateZoomRectange([0, 0], [0, 0]);
         d3.select("#zoom_rect").attr("visibility","hidden");
-      }
-
-      var tooltip = d3.select(".tooltip");
-      if(!tooltip.empty() && tooltip.html().length > 0){
-        hideTooltip(tooltip);
       }
     }
   });
