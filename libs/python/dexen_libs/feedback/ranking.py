@@ -96,8 +96,9 @@ class ParetoRankingGoldberg(ParetoRanking):
     
     def _on_pareto_front(self, ind, inds):
         for ind2 in inds:
-            if self._dominates(ind2, ind):
-                return False
+            if ind2.get_id() != ind.get_id(): #TODO - check if this equality check works
+                if self._dominates(ind2, ind):
+                    return False
         return True
 
     def _extract_pareto_front(self, inds):
@@ -180,21 +181,28 @@ class MultiRanking(object):
 import random
     
 class TestInd(object):
-    def __init__(self, scoreA, scoreB):
+    def __init__(self, id, scoreA, scoreB):
+        self.id = id
         self.scoreA = scoreA
         self.scoreB = scoreB
 
+    def is_fully_evaluated(self, score_names):
+        return True
+
+    def get_id(self):
+        return self.id
+
     def __repr__(self, *args, **kwargs):
-        return str(self.scoreA) + " " + str(self.scoreB) 
+        return str(self.scoreA) + ", " + str(self.scoreB) 
 
 
 def printRankResult(rank_result):
     assert isinstance(rank_result, RankingResult)
-    print rank_result.ind, " ", rank_result.rank 
+    print rank_result.ind, ", ", rank_result.rank 
 
 def printMultiRankResult(rank_result):
     assert isinstance(rank_result, MultiRankingResult)
-    print rank_result.ind, " ", rank_result.rank_g, " ", rank_result.rank_ff
+    print rank_result.ind, ", ", rank_result.rank_g, ", ", rank_result.rank_ff
 
 
 def main():
@@ -202,14 +210,17 @@ def main():
     import time
     
     inds = []
-    for _ in xrange(100):
-        inds.append(TestInd(random.randint(1, 100000000),
-                            random.randint(1, 100000000)))
+    for _ in xrange(10):
+        inds.append(TestInd(random.randint(1, 100), random.randint(1, 100)))
+    #inds.append(TestInd(25,95))
+    #inds.append(TestInd(50,50))
+    #inds.append(TestInd(90,20))
 
-    ranking = ParetoRankingGoldberg(inds)
-    ranking.register_score("scoreA", MIN)
-    ranking.register_score("scoreB", MIN)
-    
+    scores_meta = ScoresMeta()
+    scores_meta.append(ScoreMeta("scoreA", MIN))
+    scores_meta.append(ScoreMeta("scoreB", MIN))
+    ranking = ParetoRankingGoldberg(inds, scores_meta)
+
     stime = time.time()
     ranked = ranking.rank(max_level = None)
     
@@ -218,40 +229,8 @@ def main():
     
     print time.time() - stime, " seconds"
     print "================="
-    inds = []
-    for _ in xrange(100):
-        inds.append(TestInd(random.randint(1, 100000000),
-                            random.randint(1, 100000000)))
 
-    ranking = ParetoRankingFonsecaFlemming(inds)
-    ranking.register_score("scoreA", MIN)
-    ranking.register_score("scoreB", MIN)
-    
-    stime = time.time()
-    ranked = ranking.rank(max_level = None)
-    
-    for rank_result in ranked:
-        printRankResult(rank_result)
-    
-    print time.time() - stime, " seconds"
-    print "================="
-    inds = []
-    for _ in xrange(100):
-        inds.append(TestInd(random.randint(1, 100000000),
-                            random.randint(1, 100000000)))
 
-    ranking = MultiRanking(inds)
-    ranking.register_score("scoreA", MIN)
-    ranking.register_score("scoreB", MIN)
-    
-    stime = time.time()
-    ranked = ranking.rank(max_level = None)
-    
-    for rank_result in ranked:
-        printMultiRankResult(rank_result)
-    
-    print time.time() - stime, " seconds"
-    print "================="
 if __name__ == "__main__":
     main()
     

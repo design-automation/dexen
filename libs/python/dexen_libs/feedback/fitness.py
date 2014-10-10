@@ -142,7 +142,7 @@ def main():
 
     #create score metas
     sm1 = ScoreMeta("a", MIN)
-    sm2 = ScoreMeta("b", MAX)
+    sm2 = ScoreMeta("b", MIN)
     scores_meta = ScoresMeta()
     scores_meta.append(sm1)
     scores_meta.append(sm2)
@@ -153,8 +153,11 @@ def main():
             self.id = id
             self.a = a
             self.b = b
+        def get_id(self):
+            return id
         def is_fully_evaluated(self, _):
             return True
+
     inds = [
         Ind(0,1,2),
         Ind(1,2,3),
@@ -187,13 +190,13 @@ def main():
         print " ", ind.id, "", ind.a, "   ", ind.fitness
 
     ranked = fitness(inds, scores_meta, PARETO_GOLDBERG_RANKING)
-    print "\nARETO_GOLDBERG_RANKING"
+    print "\nPARETO_GOLDBERG_RANKING"
     print "  id score score fitness"
     for ind in inds:
         print " ", ind.id, "", ind.a, "   ", ind.b, "   ", ind.fitness
 
     ranked = fitness(inds, scores_meta, PARETO_FONSECA_FLEMMING_RANKING)
-    print "\nPARETO_GOLDBERG_RANKING"
+    print "\nPARETO_FONSECA_FLEMMING_RANKING"
     print "  id score score fitness"
     for ind in inds:
         print " ", ind.id, "", ind.a, "   ", ind.b, "   ", ind.fitness

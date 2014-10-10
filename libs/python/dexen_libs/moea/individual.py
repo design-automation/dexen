@@ -30,6 +30,7 @@ from dexen_libs.api import data_api
 ALIVE = "alive"
 GENOTYPE = "genotype"
 PHENOTYPE = "phenotype"
+ID = "_id"
 
 class GeneMeta(object):
     def __init__(self):
@@ -248,4 +249,10 @@ class Individual(object):
                 return False
         return True
 
+    #get the id of this individual
+    def get_id(self):
+        if not hasattr(self, ID):
+            id = self.data_object.get_value(ID)
+            setattr(self, ID, id)
+        return getattr(self, ID)
 
