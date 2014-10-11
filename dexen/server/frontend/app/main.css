@@ -186,3 +186,7 @@ div.col-xs-6 {
     margin:0px;
     padding:0px;
 }
+
+#showMoreModalContent {
+    word-wrap: break-word;
+}

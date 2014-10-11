@@ -6,7 +6,7 @@ function showMoreExecutions(rowNo, key){
         return;
     }
     $("#showMoreModal .modal-header h4").html(escapeHtml(key));
-    $("#showMoreModal .modal-body").html(escapeHtml(curExecutions[rowNo][key]));
+    $("#showMoreModal #showMoreModalContent").html(escapeHtml(curExecutions[rowNo][key]));
     $("#showMoreModal").modal();
 }
 
