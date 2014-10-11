@@ -239,9 +239,15 @@ function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
       .style("fill", getCircleFillColor)
       .style("stroke", getCircleStrokeColor)
       .on("mouseover", function(d, e) {
-          var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"] + "<br/>" +
-                        "<span class='spanLabel'>" + xAttr + "</span>: " + d[xAttr] + "<br/>" + 
-                        "<span class='spanLabel'>" + yAttr + "</span>: " + d[yAttr];
+          var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"];
+          $.each(d, function(key, val){
+            if(key === "_id" || key === "alive" || key === "phenotype")
+              return;
+
+            htmlStr += "<br/><span class='spanLabel'>" + key + "</span>: " + val;
+
+          });
+          
           if(d.hasOwnProperty("phenotype")){
             var phenoVal = d["phenotype"];
             if(typeof(phenoVal) == "string" && phenoVal.length > 0){

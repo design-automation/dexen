@@ -1,12 +1,30 @@
-function executionsTableRenderFunction(key){
-	var localKey = key;
+var curExecutions = null;
+
+function showMoreExecutions(rowNo, key){
+	if(curExecutions == null || curExecutions.length <= rowNo){
+		console.log("Current execution records do not have row " + rowNo);
+        return;
+    }
+    $("#showMoreModal .modal-header h4").html(escapeHtml(key));
+    $("#showMoreModal .modal-body").html(escapeHtml(curExecutions[rowNo][key]));
+    $("#showMoreModal").modal();
+}
+
+function executionsTableRenderFunction(localKey){
+	var MAX_CHARS = 160;
 	return function(data, type, row, meta){
 		if(!row.hasOwnProperty(localKey))
 			return "";
 
 		var cellData = row[localKey];
 
-		if(type == "display" && typeof(cellData) == "string"){
+		if(type == "display"){
+			cellData = String(cellData);
+			if(cellData.length > MAX_CHARS){
+				cellData = cellData.substring(0, MAX_CHARS);
+				return escapeHtml(cellData) + "&hellip;" +
+						" <a href='javascript:void(0)' onclick='showMoreExecutions(" + meta.row + ", \"" + localKey + "\");'>More</a>";
+			}
 			return escapeHtml(cellData);
 		}
 
@@ -34,6 +52,7 @@ function refreshExecutionsTable() {
         url: ajaxUrl,
         dataType: "json",
         success: function (data) {
+        	curExecutions = data.executions;
 			table
 				.rows.add(data.executions)
 				.draw();
