@@ -26,7 +26,7 @@ function showMore(rowNo, colNo){
     }
     var key = columnKeys[colNo];
     $("#showMoreModal .modal-header h4").html(escapeHtml(key));
-    $("#showMoreModal .modal-body").html(escapeHtml(curDataObjects.data[rowNo][key]));
+    $("#showMoreModal #showMoreModalContent").html(escapeHtml(curDataObjects.data[rowNo][key]));
     $("#showMoreModal").modal();
 }
 
