@@ -73,6 +73,8 @@ STATUS_FINISHED = "Finished"
 STATUS_FAILED = "Failed"
 STATUS_SCHEDULED = "Scheduled"
 
+JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters"]
+
 # ==================================================================================================
 # Functions for getting mongoDB databases and collections.
 # db_client refers to an instance of pymongo.MongoClient
@@ -121,6 +123,22 @@ def GetNextJobDataId(db_client, user_name, job_name):
         return None
 
     return doc["seq"]
+
+def GetJobNameFromCollectionName(collection_name):
+    for suffix in JOB_DATA_COLLECTION_SUFFIXES:
+        if collection_name.endswith(suffix):
+            return collection_name[:-len(suffix)]
+    return None
+
+def GetJobNames(db_client, user_name):
+    userDb = GetUserDB(db_client, user_name);
+    jobNames = set()
+    for colName in userDb.collection_names(False):
+        jobName = GetJobNameFromCollectionName(colName)
+        if not jobName is None:
+            jobNames.add(jobName)
+
+    return jobNames
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.
@@ -384,6 +402,11 @@ class UserManager(object):
             return True
         return False
 
+    def get_all_users(self):
+        res = []
+        for doc in self.col.find():
+            res.append(doc["username"])
+        return res
 
 class ExecutionManager(object):
     """ Class for managing the executions for a specific job.

@@ -55,6 +55,7 @@ class ServerCore(threading.Thread):
         self.job_mgrs = {} # (user_name, job_name) : JobManager
         self.execution_mgrs = {} # (user_name, job_name) : ExecutionManager
 
+        self.__recreate_existing_jobs()
 
     def run(self):
         """The run method that loops forever. In the loop, it 
@@ -268,3 +269,14 @@ class ServerCore(threading.Thread):
         with self._lock:
             self.resource_mgr.register_worker(address, worker_name)
 
+    def __recreate_existing_jobs(self):
+        for user_name in db.UserManager().get_all_users():
+            job_names = db.GetJobNames(self.db_client, user_name)
+            logger.info("User %s has existing jobs: %s", user_name, str(job_names))
+            for job_name in job_names:
+                field = (user_name, job_name)
+                self.job_mgrs[field] = jm.JobManager(user_name, job_name,
+                                                self.db_client)
+                self.execution_mgrs[field] = db.ExecutionManager(self.db_client,
+                                                                user_name,
+                                                                job_name)
