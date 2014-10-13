@@ -50,6 +50,7 @@ body {
 <script type="text/javascript" src="../lib/js/d3.v3.min.js"></script>
 <script type="text/javascript" src="../util.js"></script>
 <script>
+var predefinedAttribute = {"_id" : true, "alive" : true, "phenotype" : true, "genotype" : true};
 var curData = null;
 var curJobName = null;
 var lastXAttr = null;
@@ -69,6 +70,10 @@ function clamp(val, trans, range){
   if(val > range)
     return range;
   return val;
+}
+
+function isPredefinedAttribute(key){
+  return predefinedAttribute.hasOwnProperty(key); 
 }
 
 function isAlive(datum){
@@ -126,7 +131,7 @@ function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
   var data = [];
   $.each(curData.data, function(i, row){
     if(row.hasOwnProperty(xAttr) && row.hasOwnProperty(yAttr)){
-      if(!isNaN(row[xAttr]) && !isNaN(row[yAttr])){
+      if($.isNumeric(row[xAttr]) && $.isNumeric(row[yAttr])){
         var metadata = curData.metadata[i];
         if(metadata.hasOwnProperty("_id") && 
           metadata.hasOwnProperty("keys") && 
@@ -241,7 +246,7 @@ function setupGraph(xAttr, yAttr, xZoomRange, yZoomRange){
       .on("mouseover", function(d, e) {
           var htmlStr = "<span class='spanLabel'>" + "_id" + "</span>: " + d["_id"];
           $.each(d, function(key, val){
-            if(key === "_id" || key === "alive" || key === "phenotype")
+            if(isPredefinedAttribute(key))
               return;
 
             htmlStr += "<br/><span class='spanLabel'>" + key + "</span>: " + val;
@@ -285,11 +290,9 @@ function onDataChanged(data){
   var attrs = [];
   $.each(data.data, function(i, row){
     $.each(row, function(key, val){
-      if(key != "_id" && key != "alive" && key != "genotype" && key != "phenotype"){
-        if(!attrsSet.hasOwnProperty(key)){
-          attrsSet[key] = "";
-          attrs.push(key);
-        }
+      if(!isPredefinedAttribute(key) && !attrsSet.hasOwnProperty(key) && $.isNumeric(val)){
+        attrsSet[key] = "";
+        attrs.push(key);
       }
     });
   });
