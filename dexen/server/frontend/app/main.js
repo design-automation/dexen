@@ -61,6 +61,16 @@ function refreshJobs(jobName) {
     });
 }
 
+function deleteJob(jobName) {
+    var url = '/delete_job/' + jobName;
+    var xhr = $.post(url);
+
+    xhr.done(function() {
+        console.log("Deleting job: " + jobName + "is successful.");
+        refreshJobs();
+    });
+}
+
 function setupJobActions() {
     var $jobNameTextBox = $('#jobNameTextBox');
     var $createJobBtn = $('#createJobBtn');
@@ -70,6 +80,7 @@ function setupJobActions() {
     var $refreshJobFilesBtn = $('#refreshJobFilesBtn');
     var $refreshEventTasksBtn = $('#refreshEventTasksBtn');
     var $refreshDataflowTasksBtn = $('#refreshDataflowTasksBtn');
+    var $deleteJobBtn = $('#deleteJobBtn');
 
     $jobNameTextBox.keypress(function(event) {
         if ( event.which == 13 ) {
@@ -93,6 +104,11 @@ function setupJobActions() {
     $stopJobBtn.click(function() {
         var jobName = getCurrentJobNameFromTable();
         stopJob(jobName);
+    });
+
+    $deleteJobBtn.click(function() {
+        var jobName = getCurrentJobNameFromTable();
+        deleteJob(jobName);
     });
 
     $refreshAllJobsBtn.click(function() {

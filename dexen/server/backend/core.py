@@ -198,7 +198,23 @@ class ServerCore(threading.Thread):
             self.job_mgrs[field].initDataIdCounter()
 
     def delete_job(self, user_name, job_name):
-        pass
+        with self._lock:
+            field = (user_name, job_name)
+            logger.info("delete_job: user_name=%s job_name=%s", user_name,
+                        job_name)
+            if field not in self.job_mgrs:
+                logger.info("%s does not exist, so cannot delete job.", job_name)
+                return False
+
+            job_mgr = self.job_mgrs[field]
+            if job_mgr.is_running:
+                logger.info("%s is still running, so cannot delete job.", job_name)
+                return False
+
+            job_mgr.hidden = True
+
+            return True
+
 
     def run_job(self, user_name, job_name):
         with self._lock:
@@ -225,7 +241,7 @@ class ServerCore(threading.Thread):
             logger.info("get_jobs for user: %s", user_name)
             jobs = []
             for job_mgr in self.job_mgrs.values():
-                if job_mgr.user_name == user_name:
+                if job_mgr.user_name == user_name and not job_mgr.hidden:
                     jobs.append(job_mgr.json_info())
             return jobs
 

@@ -64,6 +64,7 @@ class JobManager(object):
         self.event_task_mgr = tm.EventTaskManager()
         self.dataflow_task_mgr = tm.DataFlowTaskManager(
                 db.JobDataManager(db_client, user_name, job_name))
+        self.hidden = False
 
     @property
     def is_running(self):
