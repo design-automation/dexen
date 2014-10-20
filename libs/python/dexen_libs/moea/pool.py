@@ -85,3 +85,55 @@ class Pool(object):
             ind_to_kill.kill()
 
 
+#===============================================================================
+# Testing
+#===============================================================================
+
+def main():
+
+    class Ind(object):
+        def __init__(self, id, scoreA, scoreB):
+            self.id = id
+            self.scoreA = scoreA
+            self.scoreB = scoreB
+
+        def get_id(self):
+            return self.id
+
+        def get_evaluation_score(name):
+            return getattr(self, name)
+            
+        def __repr__(self, *args, **kwargs):
+            return "id=" + str(self.id) + \
+                " (" + str(self.scoreA) + "," + str(self.scoreB) + ") f=" + str(self.fitness)
+
+    print "Starting testing"
+
+    inds = [
+        Ind(0,11,28),
+        Ind(1,24,37),
+        Ind(2,94,10),
+        Ind(3,25,29),
+        Ind(4,79,34),
+        Ind(5,43,22),
+        Ind(6,66,98),
+        Ind(7,90,33),
+        Ind(8,25,60),
+        Ind(9,54,34)
+    ] 
+
+    print "=== MINIMIZE ==="
+    from dexen_libs.feedback.ranking import ScoreMeta, ScoresMeta, MIN, MAX
+    scores_meta = ScoresMeta()
+    scores_meta.append(ScoreMeta("scoreA", MIN))
+    scores_meta.append(ScoreMeta("scoreB", MIN))
+
+    pool = Pool()
+    pool.inds = inds
+    from dexen_libs.feedback.fitness import PARETO_GOLDBERG_RANKING
+    pool.calculate_fitness(scores_meta, PARETO_GOLDBERG_RANKING)
+
+    print pool.inds
+
+if __name__ == "__main__":
+    main()

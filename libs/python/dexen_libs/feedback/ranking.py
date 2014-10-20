@@ -20,11 +20,12 @@
 # ==================================================================================================
 
 """
-A library of classes for performing various kinds of Pareto ranking.
+A library of Pareto ranking functions. These functions add attributes to the inds in the list, 
+and return a new list sorted in rank order. 
 """
 
-MIN = "min"
-MAX = "max"
+MIN = 0
+MAX = 1
 
 class ScoreMeta(object):
     def __init__(self, name, opt_type):
@@ -48,188 +49,181 @@ class ScoresMeta(object):
     def __getitem__(self,index):
         return self.scores[index]
 
-class RankingResult(object):
-    def __init__(self, ind, rank):
-        self.ind = ind
-        self.rank = rank
-        
-class MultiRankingResult(object):
-    def __init__(self, ind, rank_g, rank_ff):
-        self.ind = ind
-        self.rank_g = rank_g
-        self.rank_ff = rank_ff
-
-class ParetoRanking(object):
-    def __init__(self, inds, scores_meta):
-        self.inds = inds
-        self.scores_meta = scores_meta
-        self.unranked = []
-    
-    def set_inds(self, inds):
-        self.inds = inds
-    
-    def get_fully_evaluated_inds(self):
-        inds = []
-        for ind in self.inds:    
-            if self._is_fully_evaluated(ind):
-                inds.append(ind)
-        return inds
-
-    def _dominates(self, ind1, ind2):
-        equal = True
-        for score_meta in self.scores_meta.scores:
-            val1 = getattr(ind1, score_meta.name)
-            val2 = getattr(ind2, score_meta.name)
-            if val1 != val2: equal = False
-            if score_meta.is_minimize():
-                if val2 < val1:
-                    return False
-            elif val2 > val1:
+def _dominates(ind1, ind2, scores_meta):
+    equal = True
+    for score_meta in scores_meta.scores:
+        val1 = ind1.get_evaluation_score(score_meta.name)
+        val2 = ind2.get_evaluation_score(score_meta.name)
+        if val1 != val2: equal = False
+        if score_meta.is_minimize():
+            if val2 < val1:
                 return False
-        if equal: return False
-        return True
+        elif val2 > val1:
+            return False
+    if equal: return False
+    return True
 
-    def _is_fully_evaluated(self, ind):
-        return ind.is_fully_evaluated(self.scores_meta.names())
+def _on_pareto_front(ind, inds, scores_meta):
+    for ind2 in inds:
+        if ind2.get_id() != ind.get_id(): #TODO - check if this equality check works
+            if _dominates(ind2, ind, scores_meta):
+                return False
+    return True
 
-class ParetoRankingGoldberg(ParetoRanking):
-    
-    def _on_pareto_front(self, ind, inds):
+def _extract_pareto_front(inds, scores_meta):
+    pareto_front = []
+    non_pareto_front = []
+    for ind in inds:    
+        if _on_pareto_front(ind, inds, scores_meta):
+            pareto_front.append(ind)
+        else:
+            non_pareto_front.append(ind)
+    return pareto_front, non_pareto_front            
+
+def rank_goldberg(inds, scores_meta, max_level=None):
+    inds = list(inds)
+    rank = 0
+    cnt = 0
+    ranked = []        
+    while len(inds) > 0:
+        pareto_front, non_pareto_front = _extract_pareto_front(inds, scores_meta)
+        for ind in pareto_front:
+            ind.rank = rank
+            ind.rank_g = rank
+            ranked.append(ind)
+        inds = non_pareto_front
+        cnt +=1
+        rank += 1
+        if max_level and cnt == max_level: break
+    return ranked
+
+def rank_fonseca_flemming(inds, scores_meta, max_level=None):
+    inds = list(inds)
+    rank = 1
+    cnt = 0
+    ranked = []        
+    for ind1 in inds:
+        rank = 0;
         for ind2 in inds:
-            if ind2.get_id() != ind.get_id(): #TODO - check if this equality check works
-                if self._dominates(ind2, ind):
-                    return False
-        return True
+            if _dominates(ind1, ind2, scores_meta):
+                rank += 1
+                if rank == max_level:
+                    break
+        ind1.rank = rank
+        ind1.rank_ff = rank
+        ranked.append(ind1)
+    # sort the ranking from highest to lowest
+    ranked.sort(key=lambda ind: ind.rank, reverse=True)
+    return ranked
 
-    def _extract_pareto_front(self, inds):
-        pareto_front = []
-        non_pareto_front = []
-        for ind in inds:    
-            if self._on_pareto_front(ind, inds):
-                pareto_front.append(ind)
-            else:
-                non_pareto_front.append(ind)
-        return pareto_front, non_pareto_front            
+def rank_multi(inds, scores_meta, max_level=None):
+    ranked = list(inds)
+    ranked = rank_goldberg(ranked, scores_meta)
+    ranked = rank_fonseca_flemming(ranked, scores_meta)
+    ff_max = ranked[0].rank
 
-    def rank(self, max_level=None):
-        rank = 0
-        cnt = 0
-        ranked = []        
-        inds = []
-        for ind in self.inds:    
-            if self._is_fully_evaluated(ind):
-                inds.append(ind)
-        while len(inds) > 0:
-            pareto_front, non_pareto_front = self._extract_pareto_front(inds)
-            #print "pareto", len(pareto_front), "non pareto", len(non_pareto_front)
-            for ind in pareto_front:
-                ranked.append(RankingResult(ind, rank))
-            inds = non_pareto_front
-            cnt +=1
-            rank += 1
-            if max_level and cnt == max_level: break
-        self.unranked = inds
-        return ranked
-
-class ParetoRankingFonsecaFlemming(ParetoRanking):
-
-    def rank(self, max_level=None):
-        rank = 1
-        cnt = 0
-        ranked = []        
-        inds = []
-        for ind in self.inds:    
-            if self._is_fully_evaluated(ind):
-                inds.append(ind)
-
-        for ind1 in inds:
-            rank = 0;
-            for ind2 in inds:
-                if self._dominates(ind1, ind2):
-                    rank += 1
-                    if rank == max_level:
-                        break
-            ranked.append(RankingResult(ind1, rank))
-        # sort the ranking from highest to lowest
-        ranked.sort(key=lambda result: result.rank, reverse=True)
-        self.unranked = inds
-        return ranked
-
-class MultiRanking(object):
-
-    def __init__(self, inds, scores_meta):
-        self.ranking_g = ParetoRankingGoldberg(inds, scores_meta)
-        self.ranking_ff = ParetoRankingFonsecaFlemming(inds, scores_meta)
-
-    def rank(self, max_level=None):
-        ranked_g = self.ranking_g.rank(max_level)
-        ranked_ff = self.ranking_ff.rank(max_level)
-        ff_max = ranked_ff[0].rank
-        ranked = []
-        for g, ff in zip(ranked_g, ranked_ff):
-            ind = g.ind
-            rank_g = g.rank
-            rank_ff = ff.rank
-            ranked.append(MultiRankingResult(ind, rank_g, rank_ff))
-        ranked.sort(key=lambda result: (result.rank_g, ff_max - result.rank_ff))
-        return ranked
+    ranked.sort(key=lambda ind: (ind.rank_g, ff_max - ind.rank_ff))
+    counter = 0
+    ranked[0].rank = 0
+    for i in range(1, len(ranked)):
+        ind = ranked[i]
+        prev_ind = ranked[i-1]
+        if ind.rank_g != prev_ind.rank_g or ind.rank_ff != prev_ind.rank_ff:
+            counter += 1            
+        ind.rank = counter
+    return ranked
 
 #===============================================================================
 # Testing
 #===============================================================================
 
-import random
-    
-class TestInd(object):
-    def __init__(self, id, scoreA, scoreB):
-        self.id = id
-        self.scoreA = scoreA
-        self.scoreB = scoreB
-
-    def is_fully_evaluated(self, score_names):
-        return True
-
-    def get_id(self):
-        return self.id
-
-    def __repr__(self, *args, **kwargs):
-        return str(self.scoreA) + ", " + str(self.scoreB) 
-
-
-def printRankResult(rank_result):
-    assert isinstance(rank_result, RankingResult)
-    print rank_result.ind, ", ", rank_result.rank 
-
-def printMultiRankResult(rank_result):
-    assert isinstance(rank_result, MultiRankingResult)
-    print rank_result.ind, ", ", rank_result.rank_g, ", ", rank_result.rank_ff
-
-
 def main():
-    print "Starting testing"
-    import time
-    
-    inds = []
-    for _ in xrange(10):
-        inds.append(TestInd(random.randint(1, 100), random.randint(1, 100)))
-    #inds.append(TestInd(25,95))
-    #inds.append(TestInd(50,50))
-    #inds.append(TestInd(90,20))
 
+    import random
+        
+    class Ind(object):
+        def __init__(self, id, scoreA, scoreB):
+            self.id = id
+            self.scoreA = scoreA
+            self.scoreB = scoreB
+
+        def get_id(self):
+            return self.id
+
+        def get_evaluation_score(self, name):
+            return getattr(self, name)
+
+        def __repr__(self, *args, **kwargs):
+            return str(self.id) + " (" + str(self.scoreA) + "," + str(self.scoreB) + ")"
+
+    def printRankResult(ranked):
+        print "ID (scoreA, scoreB) RANK: rank"
+        for ind in ranked:
+            print ind, "RANK:", ind.rank
+
+    def printMultiRankResult(ranked):
+        print "ID (scoreA, scoreB) RANK: rank, g_rank, ff_rank"
+        for ind in ranked:
+            #print ind, "RANK:", ind.rank, "(", ind.rank_g, ind.rank_ff, ind.rank_ff_rev, ")"
+            print ind, "\t", "RANK:", ind.rank, "(", ind.rank_g, ind.rank_ff, ")"
+
+    def test_all_three(inds, scores_meta):
+
+        #ParetoRankingGoldberg
+        print "ParetoRankingGoldberg"
+        ranked = rank_goldberg(inds, scores_meta)
+        printRankResult(ranked)
+        
+        #ParetoRankingFonsecaFlemming
+        print "ParetoRankingFonsecaFlemming"
+        ranked = rank_fonseca_flemming(inds, scores_meta)
+        printRankResult(ranked)
+
+        #MultiRanking
+        print "MultiRanking"
+        ranked = rank_multi(inds, scores_meta)
+        printMultiRankResult(ranked)
+
+        print "================="
+    
+    def get_inds():
+        inds = [
+        Ind(0,11,28),
+        Ind(1,24,37),
+        Ind(2,94,10),
+        Ind(3,25,29),
+        Ind(4,79,34),
+        Ind(5,43,22),
+        Ind(6,66,98),
+        Ind(7,90,33),
+        Ind(8,25,60),
+        Ind(9,54,34)
+        ] 
+        return inds
+
+    def get_rand_inds(num):
+        inds = []
+        for i in range(num):
+            inds.append(Ind(i, random.random(), random.random()))
+        return inds
+
+    print "Starting testing"
+    inds = get_inds()
+    #inds = get_rand_inds(20)
+
+    print "=== MINIMIZE ==="
     scores_meta = ScoresMeta()
     scores_meta.append(ScoreMeta("scoreA", MIN))
     scores_meta.append(ScoreMeta("scoreB", MIN))
-    ranking = ParetoRankingGoldberg(inds, scores_meta)
 
-    stime = time.time()
-    ranked = ranking.rank(max_level = None)
-    
-    for rank_result in ranked:
-        printRankResult(rank_result)
-    
-    print time.time() - stime, " seconds"
-    print "================="
+    test_all_three(inds, scores_meta)
 
+    print "=== MAXIMIZE ==="
+    scores_meta_max = ScoresMeta()
+    scores_meta_max.append(ScoreMeta("scoreA", MAX))
+    scores_meta_max.append(ScoreMeta("scoreB", MAX))
+
+    test_all_three(inds, scores_meta_max)
 
 if __name__ == "__main__":
     main()

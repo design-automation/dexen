@@ -55,6 +55,7 @@ def develop(func, **kwargs):
     #create the input pool
     input_pool = Pool()
     input_pool.initialize_assigned_inds()
+    print [i.get_id() for i in input_pool.inds]
     #develop each ind
     for ind in input_pool.inds:
         ind.set_phenotype(func(ind, **kwargs))
@@ -64,6 +65,7 @@ def evaluate(func, score_names, **kwargs):
     #create the input pool
     input_pool = Pool()
     input_pool.initialize_assigned_inds()
+    print [i.get_id() for i in input_pool.inds]
     #evaluate each ind
     for ind in input_pool.inds:
         score_values = func(ind, score_names, **kwargs) 
@@ -78,6 +80,7 @@ def feedback(genotype_meta, scores_meta, fitness_type,
     #create the input pool
     input_pool = Pool()
     input_pool.initialize_assigned_inds()
+    print [i.get_id() for i in input_pool.inds]
     #assign a fitness to each ind
     input_pool.calculate_fitness(scores_meta, fitness_type)
     #kill inds

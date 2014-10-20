@@ -20,34 +20,37 @@
 # ==================================================================================================
 
 """
-A library of ranking functions to used to assign fitness. These functions do 
-not return anything. They only add 
-a fitness attribute to each individual. For golberg ranking and fonseca 
-flemming ranking, other attributes are also added (rank_g and rank_ff 
-respectively). The ind list that is passed in is not sorted according to 
-fitness. 
+A library of functions to used to calculate normalized fitness. 
+
+When normalizing the rankings, all ranks are inmcremented by 1, so that the lowest rank is 1 rather 
+than 0. This is to ensure that no individual gets zero fitness. (If everything has a rank of 0, 
+then it would result in a div by 0 error.)
+
+These functions do not return anything. They only add a fitness attribute to each individual. 
+For golberg ranking and fonseca flemming ranking, other attributes are also added (rank_g and 
+rank_ff respectively). The ind list that is passed in is not sorted according to fitness. 
 """
+
 import random
 
-from dexen_libs.feedback.ranking import (
+from ranking import (
     ScoreMeta, 
     ScoresMeta, 
     MIN, MAX,
-    ParetoRankingGoldberg,
-    ParetoRankingFonsecaFlemming,
-    MultiRanking)
+    rank_goldberg,
+    rank_fonseca_flemming,
+    rank_multi)
 
 #constants
-SINGLE_CRITERIA = "single_criteria"
-SINGLE_CRITERIA_RANKING = "single_criteria_ranking"
-PARETO_MULTI_RANKING = "pareto_multi_ranking"
-PARETO_GOLDBERG_RANKING = "pareto_goldberg_ranking"
-PARETO_FONSECA_FLEMMING_RANKING = "pareto_fonseca_flemming_ranking"
+SINGLE_CRITERIA = 0
+SINGLE_CRITERIA_RANKING = 1
+PARETO_MULTI_RANKING = 2
+PARETO_GOLDBERG_RANKING = 3
+PARETO_FONSECA_FLEMMING_RANKING = 4
 
 # select the fitness method
-def fitness(inds, scores_meta, fitness_type):
+def fitness(inds, scores_meta, fitness_type, normalize=False):
     assert isinstance(scores_meta, ScoresMeta)
-    fitness_type = fitness_type.lower()
     assert fitness_type in [
         SINGLE_CRITERIA, 
         SINGLE_CRITERIA_RANKING, 
@@ -55,157 +58,186 @@ def fitness(inds, scores_meta, fitness_type):
         PARETO_GOLDBERG_RANKING, 
         PARETO_FONSECA_FLEMMING_RANKING]
     if fitness_type == SINGLE_CRITERIA:
-        single_criteria(inds, scores_meta)
+        single_criteria(inds, scores_meta, normalize)
     elif fitness_type == SINGLE_CRITERIA_RANKING:
-        single_criteria_ranking(inds, scores_meta)
+        single_criteria_ranking(inds, scores_meta, normalize)
     elif fitness_type == PARETO_MULTI_RANKING: 
-        pareto_multi_ranking(inds, scores_meta)
+        fitness_multi(inds, scores_meta, normalize)
     elif fitness_type == PARETO_GOLDBERG_RANKING:
-        pareto_goldberg_ranking(inds, scores_meta)
+        fitness_goldberg(inds, scores_meta, normalize)
     elif fitness_type == PARETO_FONSECA_FLEMMING_RANKING:
-        pareto_fonseca_flemming_ranking(inds, scores_meta)
+        fitness_fonseca_flemming(inds, scores_meta, normalize)
 
 # simple fitness - single criteria
-def single_criteria(inds, scores_meta):
+def single_criteria(inds, scores_meta, normalize):
     score_meta = scores_meta[0]
     inds = list(inds) #shallow copy
+    if normalize:
+        score_sum = float(sum([i.get_evaluation_score(score_meta.name) for i in inds]))
+    else:
+        score_sum = 1
     # add fitness
     if score_meta.opt_type == MIN:
-        inds.sort(key=lambda ind: getattr(ind, score_meta.name))
-        max_score = getattr(inds[-1], score_meta.name)
-        min_score = getattr(inds[0], score_meta.name)
+        inds.sort(key=lambda ind: ind.get_evaluation_score(score_meta.name))
+        max_score = inds[-1].get_evaluation_score(score_meta.name)
         for ind in inds:
-            ind.fitness = min_score + (max_score - getattr(ind, score_meta.name))
+            ind.fitness = (max_score - ind.get_evaluation_score(score_meta.name)) / score_sum
     else: # score_type == "MAX"
-        inds.sort(key=lambda ind: getattr(ind, score_meta.name), reverse=True)
+        inds.sort(key=lambda ind: ind.get_evaluation_score(score_meta.name), reverse=True)
         for ind in inds:
-            ind.fitness = getattr(ind, score_meta.name)
+            ind.fitness = ind.get_evaluation_score(score_meta.name) / score_sum
 
 # simple fitness - ranking based on a single criteria
-def single_criteria_ranking(inds, scores_meta):
+def single_criteria_ranking(inds, scores_meta, normalize):
     score_meta = scores_meta[0]
     inds = list(inds) #shallow copy
+    if normalize:
+        score_sum = float(len(inds))
+    else:
+        score_sum = 1
     # add fitness
     if score_meta.opt_type == MIN:
-        inds.sort(key=lambda ind: getattr(ind, score_meta.name))
+        inds.sort(key=lambda ind: ind.get_evaluation_score(score_meta.name))
     else: # score_type == "MAX"
-        inds.sort(key=lambda ind: getattr(ind, score_meta.name), reverse=True)
+        inds.sort(key=lambda ind: ind.get_evaluation_score(core_meta.name), reverse=True)
     for index, ind in enumerate(inds):
-        ind.fitness = len(inds) - index
-
-# pareto ranking method that uses both rank_g and rank_ff
-def pareto_multi_ranking(inds, scores_meta):
-    # rank individuals using both methods
-    p_ranking = MultiRanking(inds, scores_meta)
-    ranked = p_ranking.rank() 
-    inds_fits = []
-    for index, r_ind in enumerate(ranked):
-        rank_g = r_ind.rank_g
-        rank_ff = r_ind.rank_ff
-        ind = r_ind.ind
-        ind.fitness = len(ranked) - index
-        ind.rank_g = rank_g
-        ind.rank_ff = rank_ff
-        inds_fits.append(ind)
+        ind.fitness = (len(inds) - index) / score_sum
 
 # pareto ranking method that uses rank_g
-def pareto_goldberg_ranking(inds, scores_meta):
-    # rank individuals using goldberg method
-    p_ranking = ParetoRankingGoldberg(inds, scores_meta)
-    ranked = p_ranking.rank()
-    inds_fits = []
-    for index, r_ind in enumerate(ranked):
-        rank = r_ind.rank
-        ind = r_ind.ind
-        ind.fitness = ranked[-1].rank - rank
-        ind.rank_g = rank
-        inds_fits.append(ind)
+def fitness_goldberg(inds, scores_meta, normalize):
+    ranked = rank_goldberg(inds, scores_meta)
+    min_score = ranked[0].rank
+    max_score = ranked[-1].rank
+    if normalize:
+        score_sum = float(sum([i.rank + 1 for i in inds]))
+    else:
+        score_sum = 1
+    for ind in ranked:
+        rank = ind.rank
+        ind.fitness = (max_score - ind.rank + 1) / score_sum
 
 # pareto ranking method that uses rank_ff
-def pareto_fonseca_flemming_ranking(inds, scores_meta):
-    # rank individuals using goldberg method
-    p_ranking = ParetoRankingFonsecaFlemming(inds, scores_meta)
-    ranked = p_ranking.rank()
-    inds_fits = []
-    for index, r_ind in enumerate(ranked):
-        rank = r_ind.rank
-        ind = r_ind.ind
-        ind.fitness = r_ind.rank
-        ind.rank_ff = r_ind.rank
-        inds_fits.append(ind)
+def fitness_fonseca_flemming(inds, scores_meta, normalize):
+    ranked = rank_fonseca_flemming(inds, scores_meta)
+    min_score = ranked[-1].rank
+    max_score = ranked[0].rank
+    if normalize:
+        score_sum = float(sum([i.rank + 1 for i in inds]))
+    else:
+        score_sum = 1    
+    for ind in ranked:
+        ind.fitness = (ind.rank + 1) / score_sum
+
+# pareto ranking method that uses both rank_g and rank_ff
+def fitness_multi(inds, scores_meta, normalize):
+    ranked = rank_multi(inds, scores_meta)
+    min_score = ranked[0].rank
+    max_score = ranked[-1].rank
+    if normalize:
+        score_sum = float(sum([i.rank + 1 for i in inds]))
+    else:
+        score_sum = 1   
+    for ind in ranked:
+        rank = ind.rank
+        ind.fitness = (ranked[-1].rank - ind.rank + 1) / score_sum
 
 #===============================================================================
 # Testing
 #===============================================================================
 def main():
-    print "Starting testing"
 
-    #create score metas
-    sm1 = ScoreMeta("a", MIN)
-    sm2 = ScoreMeta("b", MIN)
-    scores_meta = ScoresMeta()
-    scores_meta.append(sm1)
-    scores_meta.append(sm2)
-
-    #create some inds
     class Ind(object):
-        def __init__(self, id, a, b):
+        def __init__(self, id, scoreA, scoreB):
             self.id = id
-            self.a = a
-            self.b = b
-        def get_id(self):
-            return id
-        def is_fully_evaluated(self, _):
-            return True
+            self.scoreA = scoreA
+            self.scoreB = scoreB
 
+        def get_id(self):
+            return self.id
+
+        def get_evaluation_score(self, name):
+            return getattr(self, name)
+
+        def __repr__(self, *args, **kwargs):
+            return str(self.id) + " (" + str(self.scoreA) + "," + str(self.scoreB) + ")"
+
+    def printRankResult(inds):
+        print "ID (scoreA, scoreB) RANK: rank, FIT: fitness"
+        for ind in inds:
+            if hasattr(ind, "rank_g"):
+                rank_g = ind.rank_g
+            else:
+                rank_g = "None"
+            if hasattr(ind, "rank_ff"):
+                rank_ff = ind.rank_ff
+            else:
+                rank_ff = "None"
+            print str(ind), "RANK:", rank_g, rank_ff, "FIT: ", ind.fitness
+
+    def test_all_five(inds, scores_meta, normalize=True): 
+        from copy import deepcopy as dc
+
+        #SINGLE_CRITERIA
+        print "SINGLE_CRITERIA"
+        indsA = dc(inds) #deep copy
+        fitness(indsA, scores_meta, SINGLE_CRITERIA, normalize)
+        printRankResult(indsA)
+
+        #SINGLE_CRITERIA_RANKING
+        print "SINGLE_CRITERIA_RANKING"
+        indsB = dc(inds) #deep copy
+        fitness(indsB, scores_meta, SINGLE_CRITERIA_RANKING,normalize)
+        printRankResult(indsB)
+
+        #PARETO_GOLDBERG_RANKING
+        print "PARETO_GOLDBERG_RANKING"
+        inds1 = dc(inds) #deep copy
+        fitness(inds1, scores_meta, PARETO_GOLDBERG_RANKING, normalize)
+        printRankResult(inds1)
+        
+        #PARETO_FONSECA_FLEMMING_RANKING
+        print "PARETO_FONSECA_FLEMMING_RANKING"
+        inds2 = dc(inds) #deep copy
+        fitness(inds2, scores_meta, PARETO_FONSECA_FLEMMING_RANKING, normalize)
+        printRankResult(inds2)
+
+        #PARETO_MULTI_RANKING
+        print "PARETO_MULTI_RANKING"
+        inds3 = dc(inds) #deep copy
+        fitness(inds3, scores_meta, PARETO_MULTI_RANKING, normalize)
+        printRankResult(inds3)
+
+        print "================="
+
+
+    print "Starting testing"
+       
     inds = [
-        Ind(0,1,2),
-        Ind(1,2,3),
-        Ind(2,9,1),
-        Ind(3,2,2),
-        Ind(4,7,3),
-        Ind(5,4,2),
-        Ind(6,6,9),
-        Ind(7,0,3),
-        Ind(8,2,6),
-        Ind(9,5,3)
+        Ind(0,11,28),
+        Ind(1,24,37),
+        Ind(2,94,10),
+        Ind(3,25,29),
+        Ind(4,79,34),
+        Ind(5,43,22),
+        Ind(6,66,98),
+        Ind(7,90,33),
+        Ind(8,25,60),
+        Ind(9,54,34)
     ] 
 
-    #do the ranking
     #SINGLE_CRITERIA
     #SINGLE_CRITERIA_RANKING
-    #PARETO_MULTI_RANKING
     #PARETO_GOLDBERG_RANKING
     #PARETO_FONSECA_FLEMMING_RANKING
-    ranked = fitness(inds, scores_meta, SINGLE_CRITERIA)
-    print "\nSINGLE_CRITERIA"
-    print "  id score fitness"
-    for ind in inds:
-        print " ", ind.id, "", ind.a, "   ", ind.fitness
-    
-    ranked = fitness(inds, scores_meta, SINGLE_CRITERIA_RANKING)
-    print "\nSINGLE_CRITERIA_RANKING"
-    print "  id score fitness"
-    for ind in inds:
-        print " ", ind.id, "", ind.a, "   ", ind.fitness
+    #PARETO_MULTI_RANKING
 
-    ranked = fitness(inds, scores_meta, PARETO_GOLDBERG_RANKING)
-    print "\nPARETO_GOLDBERG_RANKING"
-    print "  id score score fitness"
-    for ind in inds:
-        print " ", ind.id, "", ind.a, "   ", ind.b, "   ", ind.fitness
+    print "=== MINIMIZE ==="
+    scores_meta = ScoresMeta()
+    scores_meta.append(ScoreMeta("scoreA", MIN))
+    scores_meta.append(ScoreMeta("scoreB", MIN))
 
-    ranked = fitness(inds, scores_meta, PARETO_FONSECA_FLEMMING_RANKING)
-    print "\nPARETO_FONSECA_FLEMMING_RANKING"
-    print "  id score score fitness"
-    for ind in inds:
-        print " ", ind.id, "", ind.a, "   ", ind.b, "   ", ind.fitness
-
-    ranked = fitness(inds, scores_meta, PARETO_MULTI_RANKING)
-    print "\nPARETO_MULTI_RANKING"
-    print "  id score score fitness"
-    for ind in inds:
-        print " ", ind.id, "", ind.a, "   ", ind.b, "   ", ind.fitness
+    test_all_five(inds, scores_meta, normalize=True)
+    test_all_five(inds, scores_meta, normalize=False)
 
 if __name__ == "__main__":
     main()
