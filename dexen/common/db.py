@@ -146,8 +146,7 @@ def GetJobNames(db_client, user_name):
     jobNames = set()
     for jobInfo in jobsInfoColls.find():
         found = True
-        if not jobInfo["deleted"]:
-            jobNames.add(jobInfo["_id"]);
+        jobNames.add(jobInfo["_id"]);
 
     if found:
         return jobNames

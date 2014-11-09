@@ -68,7 +68,7 @@ class JobManager(object):
         self.dataflow_task_mgr = tm.DataFlowTaskManager(
                 db.JobDataManager(db_client, user_name, job_name))
         self.executions = set()
-        self._update_jobs_info(False)
+        self._add_job_info()
         self._read_tasks()
 
     @property
@@ -107,12 +107,12 @@ class JobManager(object):
         if self.state != JobManager.STOPPED:
             return False
 
-        self._update_jobs_info(True)
         db.DeleteAllJobData(self.db_client, self.user_name, self.job_name)
+        self._remove_job_info()
 
         return True
 
-    def register_task(self, task):
+    def register_task(self, task, persist=True):
         """ Register a task. It can be either an event task or a dataflow task. 
 
         Parameters
@@ -126,7 +126,8 @@ class JobManager(object):
         else:
             self.dataflow_task_mgr.register_task(task)
 
-        self._write_task(task)
+        if persist:
+            self._write_task(task)
 
     def deregister_task(self, task_name):
         """ Deregisters a task. It can be either an event task or a dataflow task. 
@@ -262,10 +263,13 @@ class JobManager(object):
         if self.state == JobManager.STOPPING and len(self.executions) == 0:
             self.state = JobManager.STOPPED
 
-    def _update_jobs_info(self, deleted):
-        spec = {"_id" : self.job_name}
-        doc = {"_id" : self.job_name, "deleted" : deleted }
-        db.GetJobsInfoCollection(self.db_client, self.user_name).update(spec, doc, True)
+    def _add_job_info(self):
+        doc = {"_id" : self.job_name}
+        db.GetJobsInfoCollection(self.db_client, self.user_name).update(doc, doc, True)
+
+    def _remove_job_info(self):
+        doc = {"_id" : self.job_name}
+        db.GetJobsInfoCollection(self.db_client, self.user_name).remove(doc)
 
     def _write_task(self, task_obj):
         json_task = task_obj.json(True)
@@ -276,5 +280,5 @@ class JobManager(object):
         task_col = db.GetJobTasksCollection(self.db_client, self.user_name, self.job_name)
         for json_task in task_col.find():
             task_obj = task.TaskFromJSON(json_task, True)
-            self.register_task(task_obj)
+            self.register_task(task_obj, False)
 
