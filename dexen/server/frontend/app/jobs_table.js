@@ -33,9 +33,9 @@ function updateActivePane(){
 
 function updateJobBtns($tr) {
     var status = getCurrentJobStatusFromTable();
-    $('#runJobBtn').disable(status === 'RUNNING');
-    $('#stopJobBtn').disable(status === 'STOPPED');
-    $('#deleteJobBtn').disable(status === 'RUNNING');
+    $('#runJobBtn').disable(status !== 'STOPPED');
+    $('#stopJobBtn').disable(status !== 'RUNNING');
+    $('#deleteJobBtn').disable(status !== 'STOPPED');
 }
 
 function setupJobsTable() {

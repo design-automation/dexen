@@ -207,11 +207,11 @@ class ServerCore(threading.Thread):
                 return False
 
             job_mgr = self.job_mgrs[field]
-            if job_mgr.is_running:
-                logger.info("%s is still running, so cannot delete job.", job_name)
+            if not job_mgr.delete():
+                logger.info("%s is not fully stopped yet, so cannot delete job.", job_name)
                 return False
 
-            job_mgr.hidden = True
+            del self.job_mgrs[field]
 
             return True
 
@@ -241,7 +241,7 @@ class ServerCore(threading.Thread):
             logger.info("get_jobs for user: %s", user_name)
             jobs = []
             for job_mgr in self.job_mgrs.values():
-                if job_mgr.user_name == user_name and not job_mgr.hidden:
+                if job_mgr.user_name == user_name:
                     jobs.append(job_mgr.json_info())
             return jobs
 

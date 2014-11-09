@@ -116,6 +116,11 @@ def GetJobExecutionCollection(db_client, user_name, job_name):
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".executions")
 
+def GetJobsInfoCollection(db_client, user_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), "_jobsinfo")
+
 def GetNextJobDataId(db_client, user_name, job_name):
     counterColl = GetJobDataIdCounterCollection(db_client, user_name, job_name)
     doc = counterColl.find_and_modify(query = { "_id": "data_id" }, update = { "$inc": { "seq": 1 } }, new = True)
@@ -131,14 +136,32 @@ def GetJobNameFromCollectionName(collection_name):
     return None
 
 def GetJobNames(db_client, user_name):
-    userDb = GetUserDB(db_client, user_name);
+    jobsInfoColls = GetJobsInfoCollection(db_client, user_name);
+    found = False
     jobNames = set()
+    for jobInfo in jobsInfoColls.find():
+        found = True
+        if not jobInfo["deleted"]:
+            jobNames.add(jobInfo["_id"]);
+
+    if found:
+        return jobNames
+
+    userDb = GetUserDB(db_client, user_name);
     for colName in userDb.collection_names(False):
         jobName = GetJobNameFromCollectionName(colName)
         if not jobName is None:
             jobNames.add(jobName)
 
     return jobNames
+
+def DeleteAllJobData(db_client, user_name, job_name):
+    userDb = GetUserDB(db_client, user_name);
+    for suffix in JOB_DATA_COLLECTION_SUFFIXES:
+        userDb.drop_collection(job_name + suffix)    
+    
+    userDb.drop_collection(job_name + ".files")
+    userDb.drop_collection(job_name + ".chunks")
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.

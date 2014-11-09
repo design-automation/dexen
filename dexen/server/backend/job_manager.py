@@ -46,6 +46,7 @@ class JobManager(object):
         Used for managing all dataflow tasks.
     """
     RUNNING = "JOB_RUNNING"
+    STOPPING = "JOB_STOPPING"
     STOPPED = "JOB_STOPPED"
 
     def __init__(self, user_name, job_name, db_client):
@@ -64,13 +65,21 @@ class JobManager(object):
         self.event_task_mgr = tm.EventTaskManager()
         self.dataflow_task_mgr = tm.DataFlowTaskManager(
                 db.JobDataManager(db_client, user_name, job_name))
-        self.hidden = False
+        self.executions = set()
+        self.jobs_info_coll = db.GetJobsInfoCollection(db_client, user_name)
+        self._update_jobs_info(False)
 
     @property
     def is_running(self):
         """ Return True if this job is running. 
         """
         return self.state == JobManager.RUNNING
+
+    @property
+    def is_stopped(self):
+        """ Return True if this job is stopped. 
+        """
+        return self.state == JobManager.STOPPED
 
     def run(self):
         """ Start this job. 
@@ -82,9 +91,24 @@ class JobManager(object):
     def stop(self):
         """ Stop this job. The job cannot be restarted.
         """
-        self.state = JobManager.STOPPED
-        self.stop_time = time.time()
-        self.event_task_mgr.on_job_stop()
+        if self.state == JobManager.RUNNING:
+            self.state = JobManager.STOPPING
+            self.stop_time = time.time()
+            self.event_task_mgr.on_job_stop()
+
+            if len(self.executions) == 0:
+                self.state = JobManager.STOPPED
+
+    def delete(self):
+        """ Delete this job.
+        """
+        if self.state != JobManager.STOPPED:
+            return False
+
+        self._update_jobs_info(True)
+        db.DeleteAllJobData(self.db_client, self.user_name, self.job_name)
+
+        return True
 
     def register_task(self, task):
         """ Register a task. It can be either an event task or a dataflow task. 
@@ -159,6 +183,8 @@ class JobManager(object):
         else:
             self.dataflow_task_mgr.on_execution_scheduled(execution)
 
+        self._add_execution(execution)
+
     def on_execution_completed(self, scheduled_execution, execution_result):
         """
 
@@ -179,6 +205,8 @@ class JobManager(object):
         self.dataflow_task_mgr.on_execution_completed(scheduled_execution,
                                                       execution_result)
 
+        self._remove_execution(scheduled_execution)
+
     def on_execution_failed(self, execution):
         """
         TODO: explain what this does ... rollback
@@ -193,6 +221,8 @@ class JobManager(object):
         # Therefore, we still handle the event task in dataflow task manager.
         self.dataflow_task_mgr.on_execution_failed(execution)
 
+        self._remove_execution(execution)
+
     def json_info(self):
         """ Creates a json representation of this job. 
 
@@ -205,8 +235,10 @@ class JobManager(object):
                 "creation_time": self.creation_time,
                 "start_time": self.start_time,
                 "stop_time": self.stop_time}
-        if self.is_running:
+        if self.state == JobManager.RUNNING:
             info["status"] = "RUNNING"
+        elif self.state == JobManager.STOPPING:
+            info["status"] = "STOPPING"
         else:
             info["status"] = "STOPPED"
 
@@ -217,4 +249,17 @@ class JobManager(object):
     def initDataIdCounter(self):
         coll = db.GetJobDataIdCounterCollection(self.db_client, self.user_name, self.job_name)
         coll.insert({"_id" : "data_id", "seq" : 0})
+
+    def _add_execution(self, execution):
+        self.executions.add(execution.execution_id);
+
+    def _remove_execution(self, execution):
+        self.executions.remove(execution.execution_id);
+        if self.state == JobManager.STOPPING and len(self.executions) == 0:
+            self.state = JobManager.STOPPED
+
+    def _update_jobs_info(self, deleted):
+        spec = {"_id" : self.job_name}
+        doc = {"_id" : self.job_name, "deleted" : deleted }
+        self.jobs_info_coll.update(spec, doc, True)
 
