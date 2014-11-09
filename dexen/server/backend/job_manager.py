@@ -21,8 +21,10 @@
 
 import time
 
-from dexen.common import db
+from dexen.common import db, task
 from dexen.server.backend import task_manager as tm
+
+import json
 
 class JobManager(object):
     """ Manages a specific job, including runing and stopping the job, and
@@ -66,8 +68,8 @@ class JobManager(object):
         self.dataflow_task_mgr = tm.DataFlowTaskManager(
                 db.JobDataManager(db_client, user_name, job_name))
         self.executions = set()
-        self.jobs_info_coll = db.GetJobsInfoCollection(db_client, user_name)
         self._update_jobs_info(False)
+        self._read_tasks()
 
     @property
     def is_running(self):
@@ -123,6 +125,8 @@ class JobManager(object):
             self.event_task_mgr.register_task(task)
         else:
             self.dataflow_task_mgr.register_task(task)
+
+        self._write_task(task)
 
     def deregister_task(self, task_name):
         """ Deregisters a task. It can be either an event task or a dataflow task. 
@@ -261,5 +265,16 @@ class JobManager(object):
     def _update_jobs_info(self, deleted):
         spec = {"_id" : self.job_name}
         doc = {"_id" : self.job_name, "deleted" : deleted }
-        self.jobs_info_coll.update(spec, doc, True)
+        db.GetJobsInfoCollection(self.db_client, self.user_name).update(spec, doc, True)
+
+    def _write_task(self, task_obj):
+        json_task = task_obj.json(True)
+
+        db.GetJobTasksCollection(self.db_client, self.user_name, self.job_name).insert(json_task)
+
+    def _read_tasks(self):
+        task_col = db.GetJobTasksCollection(self.db_client, self.user_name, self.job_name)
+        for json_task in task_col.find():
+            task_obj = task.TaskFromJSON(json_task, True)
+            self.register_task(task_obj)
 

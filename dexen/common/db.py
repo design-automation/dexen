@@ -73,7 +73,7 @@ STATUS_FINISHED = "Finished"
 STATUS_FAILED = "Failed"
 STATUS_SCHEDULED = "Scheduled"
 
-JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters"]
+JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters", ".tasks"]
 
 # ==================================================================================================
 # Functions for getting mongoDB databases and collections.
@@ -115,6 +115,11 @@ def GetJobExecutionCollection(db_client, user_name, job_name):
     """
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".executions")
+
+def GetJobTasksCollection(db_client, user_name, job_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), job_name+".tasks")
 
 def GetJobsInfoCollection(db_client, user_name):
     """
