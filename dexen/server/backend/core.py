@@ -22,10 +22,15 @@
 import logging
 import time
 import threading
+import tempfile
+import zipfile
+import StringIO
+
+from pymongo import collection
+from bson.json_util import dumps
 
 from dexen.common import db
 from dexen.server.backend import job_manager as jm, proxy
-
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +249,33 @@ class ServerCore(threading.Thread):
                 if job_mgr.user_name == user_name:
                     jobs.append(job_mgr.json_info())
             return jobs
+
+    def export_jobs(self, user_name):
+        with self._lock:
+            logger.info("export_jobs for user: %s", user_name)
+
+            job_names = db.GetJobNames(self.db_client, user_name)
+            if len(job_names) == 0:
+                return "No jobs found", None
+
+            zipobj = None 
+            output = None
+
+            for job_name in job_names:
+                for suffix in db.JOB_DATA_COLLECTION_SUFFIXES:
+                    colname = job_name + suffix
+                    col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
+                    if output is None:
+                        output = StringIO.StringIO()
+                        zipobj = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
+                    zipobj.writestr(colname, dumps(col.find()))
+
+            if output is None:
+                return "No jobs found", None
+
+            zipobj.close()
+
+            return None, output.getvalue()
 
     def get_tasks(self, user_name, job_name):
         with self._lock:

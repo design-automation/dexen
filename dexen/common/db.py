@@ -73,7 +73,7 @@ STATUS_FINISHED = "Finished"
 STATUS_FAILED = "Failed"
 STATUS_SCHEDULED = "Scheduled"
 
-JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters", ".tasks"]
+JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters", ".tasks", ".files", ".chunks"]
 
 # ==================================================================================================
 # Functions for getting mongoDB databases and collections.
@@ -162,10 +162,7 @@ def GetJobNames(db_client, user_name):
 def DeleteAllJobData(db_client, user_name, job_name):
     userDb = GetUserDB(db_client, user_name);
     for suffix in JOB_DATA_COLLECTION_SUFFIXES:
-        userDb.drop_collection(job_name + suffix)    
-    
-    userDb.drop_collection(job_name + ".files")
-    userDb.drop_collection(job_name + ".chunks")
+        userDb.drop_collection(job_name + suffix)
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.

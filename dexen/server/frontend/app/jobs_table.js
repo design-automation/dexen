@@ -36,6 +36,18 @@ function updateJobBtns($tr) {
     $('#runJobBtn').disable(status !== 'STOPPED');
     $('#stopJobBtn').disable(status !== 'RUNNING');
     $('#deleteJobBtn').disable(status !== 'STOPPED');
+    var stopped = allJobsStopped();
+    $('#exportJobBtn').disable(!stopped);
+    $('#importJobBtn').disable(!stopped);
+}
+
+function allJobsStopped() {
+    var stopped = true;
+    $("#jobsTable tbody tr td:nth-child(2)").each(function(i, td){
+        if($(td).text() != 'STOPPED')
+            stopped = false;
+    });
+    return stopped;
 }
 
 function setupJobsTable() {
