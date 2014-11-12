@@ -1,5 +1,5 @@
 function exportJobs(){
-	window.location.href = "/export"
+	window.location.href = "/export/" + getCurrentJobNameFromTable();
 }
 
 function importJobs(){

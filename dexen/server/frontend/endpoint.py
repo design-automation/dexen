@@ -288,16 +288,16 @@ def deregister_task(job_name, task_name):
     _server_backend.deregister_task(current_user.username, job_name, task_name) # @UndefinedVariable
     return "Deregistering %s %s.\n"%(job_name, task_name)
 
-@app.route("/export", methods=["GET"])
+@app.route("/export/<job_name>", methods=["GET"])
 @login_required
-def export_jobs():
-    logger.info("Exporting jobs for user %s.", current_user.username)
-    err, data = _server_backend.export_jobs(current_user.username)
+def export_job(job_name):
+    logger.info("Exporting job %s for user %s.", job_name, current_user.username)
+    err, data = _server_backend.export_job(current_user.username, job_name)
     if err:
         return make_response(err, 500, None)
 
     response = make_response(data)
-    filename = "{0}.zip".format(current_user.username)
+    filename = "{0}.zip".format(job_name)
     response.headers["Content-Disposition"] = "attachment; filename=" + filename
 
     return response

@@ -24,7 +24,7 @@ import time
 import threading
 import tempfile
 import zipfile
-import StringIO
+import cStringIO
 
 from pymongo import collection
 from bson.json_util import dumps
@@ -250,30 +250,35 @@ class ServerCore(threading.Thread):
                     jobs.append(job_mgr.json_info())
             return jobs
 
-    def export_jobs(self, user_name):
+    def export_job(self, user_name, job_name):
         with self._lock:
-            logger.info("export_jobs for user: %s", user_name)
+            logger.info("export_job %s for user: %s", job_name, user_name)
+            field = (user_name, job_name)
+            if field not in self.job_mgrs:
+                logger.info("%s does not exist, so cannot export job.", job_name)
+                return "Job doesn't exist", None
 
-            job_names = db.GetJobNames(self.db_client, user_name)
-            if len(job_names) == 0:
-                return "No jobs found", None
+            job_mgr = self.job_mgrs[field]
+            if not job_mgr.is_stopped:
+                return "Job is not stopped", None
 
             zipobj = None 
             output = None
 
-            for job_name in job_names:
-                for suffix in db.JOB_DATA_COLLECTION_SUFFIXES:
-                    colname = job_name + suffix
-                    col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
-                    if output is None:
-                        output = StringIO.StringIO()
-                        zipobj = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
-                    zipobj.writestr(colname, dumps(col.find()))
+            for suffix in db.JOB_DATA_COLLECTION_SUFFIXES:
+                colname = job_name + suffix
+                col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
+                if output is None:
+                    output = cStringIO.StringIO()
+                    zipobj = zipfile.ZipFile(output, 'w', zipfile.ZIP_STORED, True)
+                zipobj.writestr(suffix, dumps(col.find()))
 
             if output is None:
-                return "No jobs found", None
+                return "No data found", None
 
             zipobj.close()
+
+            logger.info("Exiting export_job...")
 
             return None, output.getvalue()
 

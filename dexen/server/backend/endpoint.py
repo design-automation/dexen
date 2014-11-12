@@ -57,8 +57,8 @@ class ServerBackendEndPoint(remoting.BaseEndPoint):
     def get_jobs(self, user_name):
         return _core.get_jobs(user_name)
 
-    def export_jobs(self, user_name):
-        return _core.export_jobs(user_name)
+    def export_job(self, user_name, job_name):
+        return _core.export_job(user_name, job_name)
 
     def get_tasks(self, user_name, job_name):
         return _core.get_tasks(user_name, job_name)

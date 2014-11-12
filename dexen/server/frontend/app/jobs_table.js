@@ -36,9 +36,8 @@ function updateJobBtns($tr) {
     $('#runJobBtn').disable(status !== 'STOPPED');
     $('#stopJobBtn').disable(status !== 'RUNNING');
     $('#deleteJobBtn').disable(status !== 'STOPPED');
-    var stopped = allJobsStopped();
-    $('#exportJobBtn').disable(!stopped);
-    $('#importJobBtn').disable(!stopped);
+    $('#exportJobBtn').disable(status !== 'STOPPED');
+    $('#importJobBtn').disable(!allJobsStopped());
 }
 
 function allJobsStopped() {

@@ -58,8 +58,8 @@ class ServerBackendProxy(remoting.BaseEndPointProxy):
         return self._conn.root.get_jobs(user_name)
 
     @remote_api()
-    def export_jobs(self, user_name):
-        return self._conn.root.export_jobs(user_name)
+    def export_job(self, user_name, job_name):
+        return self._conn.root.export_job(user_name, job_name)
 
     @remote_api()
     def get_tasks(self, user_name, job_name):
