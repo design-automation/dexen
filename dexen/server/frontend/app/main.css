@@ -37,6 +37,7 @@ h1 {
     padding: 2px 5px;
     border: 1px solid #FFC058;
     border-radius: 0px;
+    color: black;
 }
 
 .btn:hover {
@@ -189,4 +190,8 @@ div.col-xs-6 {
 
 #showMoreModalContent {
     word-wrap: break-word;
+}
+
+.reducedOpacity {
+    opacity: .65;
 }

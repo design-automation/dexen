@@ -37,7 +37,12 @@ function updateJobBtns($tr) {
     $('#stopJobBtn').disable(status !== 'RUNNING');
     $('#deleteJobBtn').disable(status !== 'STOPPED');
     $('#exportJobBtn').disable(status !== 'STOPPED');
-    $('#importJobBtn').disable(!allJobsStopped());
+    var stopped = allJobsStopped();
+    $('#importJobBtn').disable(!stopped);
+    if(stopped)
+        $('#importJobContainer').removeClass('reducedOpacity');
+    else
+        $('#importJobContainer').addClass('reducedOpacity');
 }
 
 function allJobsStopped() {

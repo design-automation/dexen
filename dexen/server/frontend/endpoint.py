@@ -22,7 +22,7 @@
 import os
 import logging
 
-from flask import request, redirect, url_for, flash
+from flask import request, redirect, url_for, flash, send_file
 from flask.ext.login import (login_user, logout_user, login_required,
                              current_user)
 from flask.helpers import make_response
@@ -35,6 +35,8 @@ from bson.objectid import ObjectId
 
 import cPickle as pickle
 import base64
+
+import tempfile
 
 from dexen.common import db, task
 from dexen.server.frontend import app, login_mgr, form as dexen_form, proxy
@@ -296,11 +298,45 @@ def export_job(job_name):
     if err:
         return make_response(err, 500, None)
 
-    response = make_response(data)
     filename = "{0}.zip".format(job_name)
-    response.headers["Content-Disposition"] = "attachment; filename=" + filename
 
-    return response
+    return send_file(data, mimetype='application/zip', as_attachment=True, attachment_filename=filename)
+
+@app.route("/import", methods=["POST"])
+@login_required
+def import_job():
+    errorkey = "error"
+    logger.info("Request.files type: %s", type(request.files))
+    logger.info("request files: %s", request.files)
+
+    fileobj = request.files["jobZip"]
+    if fileobj is None:
+        return jsonify({errorkey : "Can't find the uploaded file"})
+    
+    job_name = fileobj.filename
+    if job_name.endswith('.zip'):
+        job_name = job_name[:-4]
+
+    if len(job_name) == 0:
+        return jsonify({errorkey : "Can't find the name of the uploaded file"})
+
+    logger.info("Found job name: %s", job_name)
+
+    savedfile = tempfile.NamedTemporaryFile(suffix='.zip', prefix='dexen-import-' + job_name, delete=False)
+    logger.info("Saving to: %s", savedfile.name)
+    
+    try:
+        fileobj.save(savedfile)
+        savedfile.close()
+        err = _server_backend.import_job(current_user.username, job_name, savedfile.name)
+        return jsonify({errorkey : err})
+
+    except Exception, e:
+        savedfile.close()
+        os.remove(savedfile.name)
+        logger.info("Error while saving file: " + str(e))
+        return jsonify({errorkey : "Error while saving file: " + str(e)})
+    
 
 def start_webserver(backend_addr, db_addr):
     global _server_backend, _user_mgr, _db_client
