@@ -597,12 +597,9 @@ class JobDataManager(object):
     def get_modified_attrs(self, data_id, execution_id):
         """
         """
-        self.logger.debug("Get modified attributes for execution: %s",
-                          execution_id)
         field = self._attrs_being_modified_field(execution_id)
         result = self.coll.find_one(
             {"_id": data_id.get_value(), field: {"$exists": 1}}, fields=[field])
-        self.logger.debug("Modified attributes result: %s", result)
         if result:
             return result[ATTRS_BEING_MODIFIED][execution_id]
         return []
