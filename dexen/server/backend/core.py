@@ -307,6 +307,8 @@ class ServerCore(threading.Thread):
                     logger.info("Reading %s", suffix)
                     data = zipobj.read(suffix)
                     ar = json_util.loads(data)
+                    if not ar:
+                        continue
                     colname = job_name + suffix
                     col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
                     col.insert(ar)
