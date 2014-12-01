@@ -666,3 +666,6 @@ class JobDataManager(object):
         if not res is None:
             return res.get(attr_name)
         return None
+
+    def get_data(self, data_id):
+        return self.coll.find_one(data_id, fields={ATTRS_BEING_MODIFIED : False, FIELD_ROLLBACK : False})

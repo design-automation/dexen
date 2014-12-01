@@ -35,6 +35,7 @@ from bson.objectid import ObjectId
 
 import cPickle as pickle
 import base64
+import sys
 
 import tempfile
 
@@ -203,6 +204,27 @@ def get_data(job_name):
     except:
         logger.warning("Unexpected error while reading data objects: ", sys.exc_info()[0])
         return make_response("Unable to read the data objects", 500, None);
+
+@app.route("/data/<job_name>/<enc_data_id>", methods=["GET"])
+@login_required
+def get_data_object(job_name, enc_data_id):
+    try:
+        logger.info("Getting data for job: %s, encoded id: %s", job_name, enc_data_id)
+        data_id = pickle.loads(base64.b64decode(enc_data_id))
+        logger.info("Decoded data id: %s", str(data_id))
+        data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+
+        doc = data_mgr.get_data(data_id)
+
+        if doc is None:
+            return make_response("Data not found", 400, None)
+
+        ret = base64.b64encode(pickle.dumps(doc))
+
+        return jsonify(data=ret)
+    except:
+        logger.warning("Unexpected error while reading data object: ", sys.exc_info()[0])
+        return make_response("Unable to read the data object", 500, None);
 
 @app.route("/data/<job_name>/<enc_data_id>/<attr_name>", methods=["GET"])
 @login_required
