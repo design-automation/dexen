@@ -22,7 +22,7 @@
 import os
 import logging
 
-from flask import request, redirect, url_for, flash
+from flask import request, redirect, url_for, flash, send_file
 from flask.ext.login import (login_user, logout_user, login_required,
                              current_user)
 from flask.helpers import make_response
@@ -35,6 +35,9 @@ from bson.objectid import ObjectId
 
 import cPickle as pickle
 import base64
+import sys
+
+import tempfile
 
 from dexen.common import db, task
 from dexen.server.frontend import app, login_mgr, form as dexen_form, proxy
@@ -202,6 +205,27 @@ def get_data(job_name):
         logger.warning("Unexpected error while reading data objects: ", sys.exc_info()[0])
         return make_response("Unable to read the data objects", 500, None);
 
+@app.route("/data/<job_name>/<enc_data_id>", methods=["GET"])
+@login_required
+def get_data_object(job_name, enc_data_id):
+    try:
+        logger.info("Getting data for job: %s, encoded id: %s", job_name, enc_data_id)
+        data_id = pickle.loads(base64.b64decode(enc_data_id))
+        logger.info("Decoded data id: %s", str(data_id))
+        data_mgr = db.JobDataManager(_db_client, current_user.username, job_name) # @UndefinedVariable
+
+        doc = data_mgr.get_data(data_id)
+
+        if doc is None:
+            return make_response("Data not found", 400, None)
+
+        ret = base64.b64encode(pickle.dumps(doc))
+
+        return jsonify(data=ret)
+    except:
+        logger.warning("Unexpected error while reading data object: ", sys.exc_info()[0])
+        return make_response("Unable to read the data object", 500, None);
+
 @app.route("/data/<job_name>/<enc_data_id>/<attr_name>", methods=["GET"])
 @login_required
 def download_data(job_name, enc_data_id, attr_name):
@@ -288,6 +312,53 @@ def deregister_task(job_name, task_name):
     _server_backend.deregister_task(current_user.username, job_name, task_name) # @UndefinedVariable
     return "Deregistering %s %s.\n"%(job_name, task_name)
 
+@app.route("/export/<job_name>", methods=["GET"])
+@login_required
+def export_job(job_name):
+    logger.info("Exporting job %s for user %s.", job_name, current_user.username)
+    err, data = _server_backend.export_job(current_user.username, job_name)
+    if err:
+        return make_response(err, 500, None)
+
+    filename = "{0}.zip".format(job_name)
+
+    return send_file(data, mimetype='application/zip', as_attachment=True, attachment_filename=filename)
+
+@app.route("/import", methods=["POST"])
+@login_required
+def import_job():
+    errorkey = "error"
+    logger.info("Request.files type: %s", type(request.files))
+    logger.info("request files: %s", request.files)
+
+    fileobj = request.files["jobZip"]
+    if fileobj is None:
+        return jsonify({errorkey : "Can't find the uploaded file"})
+    
+    job_name = fileobj.filename
+    if job_name.endswith('.zip'):
+        job_name = job_name[:-4]
+
+    if len(job_name) == 0:
+        return jsonify({errorkey : "Can't find the name of the uploaded file"})
+
+    logger.info("Found job name: %s", job_name)
+
+    savedfile = tempfile.NamedTemporaryFile(suffix='.zip', prefix='dexen-import-' + job_name, delete=False)
+    logger.info("Saving to: %s", savedfile.name)
+    
+    try:
+        fileobj.save(savedfile)
+        savedfile.close()
+        err = _server_backend.import_job(current_user.username, job_name, savedfile.name)
+        return jsonify({errorkey : err})
+
+    except Exception, e:
+        savedfile.close()
+        os.remove(savedfile.name)
+        logger.info("Error while saving file: " + str(e))
+        return jsonify({errorkey : "Error while saving file: " + str(e)})
+    
 
 def start_webserver(backend_addr, db_addr):
     global _server_backend, _user_mgr, _db_client

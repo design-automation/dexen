@@ -31,7 +31,7 @@
     <script type="text/javascript" src="../lib/js/dataTables.colVis.js"></script>
     <script type="text/javascript" src="../lib/js/dataTables.colReorder.js"></script>
     <script type="text/javascript" src="../lib/js/iframeResizer.min.js"></script>
-    
+    <script type="text/javascript" src="../lib/js/jquery.blockUI.js"></script>
     <!--<script type="text/javascript" src="../lib/js/ZeroClipboard.js"></script>-->
     <!--<script type="text/javascript" src="../lib/js/TableTools.js"></script>-->
     <script type="text/javascript" src="task_registration.js"></script>
@@ -42,6 +42,7 @@
     <script type="text/javascript" src="tasks_table.js"></script>
     <script type="text/javascript" src="executions.js"></script>
     <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="export_import.js"></script>
     <script type="text/javascript" src="graph.js"></script>
     <script type="text/javascript" src="main.js"></script>
 
@@ -75,7 +76,10 @@
             
             <button class="btn pull-right" disabled="disabled">Export As CSV</button>
             <button id="exportJobBtn" class="btn pull-right" disabled="disabled">Export</button>
-            <button id="importJobBtn" class="btn pull-right" disabled="disabled">Import</button>
+            <span id="importJobContainer" class="fileinput-button btn pull-right">
+                <span>Import</span>
+                <input id="importJobBtn" type="file" name="jobZip"/>
+            </span>
             <button id="deleteJobBtn" class="btn pull-right" disabled="disabled">Delete</button>
             <button id="stopJobBtn" class="btn pull-right" disabled="disabled">Stop</button>
             <button id="runJobBtn" class="btn pull-right" disabled="disabled">Run</button>

@@ -169,6 +169,7 @@ $(document).ready(function() {
     setupJobDataTable();
     setupTabs();
     setupGraph();
+    setupExportImport();
 
     refreshJobs();
 });

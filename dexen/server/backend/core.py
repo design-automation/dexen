@@ -22,10 +22,15 @@
 import logging
 import time
 import threading
+import tempfile
+import zipfile
+import os
+
+from pymongo import collection
+from bson import json_util
 
 from dexen.common import db
 from dexen.server.backend import job_manager as jm, proxy
-
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +185,7 @@ class ServerCore(threading.Thread):
     #===========================================================================
     # INVOKED BY THE ENDPOINT THREAD
     #===========================================================================
-    def create_job(self, user_name, job_name):
+    def create_job(self, user_name, job_name, init_counter=True):
         with self._lock:
             field = (user_name, job_name)
             logger.info("create_job: user_name=%s job_name=%s", user_name,
@@ -195,7 +200,10 @@ class ServerCore(threading.Thread):
             self.execution_mgrs[field] = db.ExecutionManager(self.db_client,
                                                              user_name,
                                                              job_name)
-            self.job_mgrs[field].initDataIdCounter()
+            if init_counter:
+                self.job_mgrs[field].initDataIdCounter()
+
+            return True
 
     def delete_job(self, user_name, job_name):
         with self._lock:
@@ -207,11 +215,11 @@ class ServerCore(threading.Thread):
                 return False
 
             job_mgr = self.job_mgrs[field]
-            if job_mgr.is_running:
-                logger.info("%s is still running, so cannot delete job.", job_name)
+            if not job_mgr.delete():
+                logger.info("%s is not fully stopped yet, so cannot delete job.", job_name)
                 return False
 
-            job_mgr.hidden = True
+            del self.job_mgrs[field]
 
             return True
 
@@ -241,9 +249,84 @@ class ServerCore(threading.Thread):
             logger.info("get_jobs for user: %s", user_name)
             jobs = []
             for job_mgr in self.job_mgrs.values():
-                if job_mgr.user_name == user_name and not job_mgr.hidden:
+                if job_mgr.user_name == user_name:
                     jobs.append(job_mgr.json_info())
             return jobs
+
+    def export_job(self, user_name, job_name):
+        with self._lock:
+            logger.info("export_job %s for user: %s", job_name, user_name)
+            field = (user_name, job_name)
+            if field not in self.job_mgrs:
+                logger.info("%s does not exist, so cannot export job.", job_name)
+                return "Job doesn't exist", None
+
+            job_mgr = self.job_mgrs[field]
+            if not job_mgr.is_stopped:
+                return "Job is not stopped", None
+
+            zipobj = None 
+            output = None
+            try:
+                for suffix in db.JOB_DATA_COLLECTION_SUFFIXES:
+                    logger.info("Writing %s", suffix)
+                    colname = job_name + suffix
+                    col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
+                    if output is None:
+                        output = tempfile.NamedTemporaryFile(suffix='.zip', prefix='dexen-export-' + job_name, delete=False)
+                        zipobj = zipfile.ZipFile(output, 'w', zipfile.ZIP_STORED, True)
+                    zipobj.writestr(suffix, json_util.dumps(col.find()))
+                    logger.info("Exporting %s done", suffix)
+
+                if output is None:
+                    return "No data found", None
+
+                logger.info("Exported to %s", output.name)
+                return None, output.name
+            except Exception, e:
+                raise e
+            finally:
+                if zipobj is not None:
+                    zipobj.close()
+                if output is not None:
+                    output.close()
+
+    def import_job(self, user_name, job_name, file_name):
+        with self._lock:
+            logger.info("import_job %s for user: %s from file: %s", job_name, user_name, file_name)
+            field = (user_name, job_name)
+            if field in self.job_mgrs:
+                logger.info("%s exists, so cannot import job.", job_name)
+                return "Job already exists"
+
+            zipobj = None
+
+            try:
+                zipobj = zipfile.ZipFile(file_name, 'r')
+                for suffix in db.JOB_DATA_COLLECTION_SUFFIXES:
+                    logger.info("Reading %s", suffix)
+                    data = zipobj.read(suffix)
+                    ar = json_util.loads(data)
+                    if not ar:
+                        continue
+                    colname = job_name + suffix
+                    col = collection.Collection(db.GetUserDB(self.db_client, user_name), colname)
+                    col.insert(ar)
+
+                if not self.create_job(user_name, job_name, False):
+                    return "Error encountered while creating the imported job.";
+
+                return None
+
+            except Exception, e:
+                logger.info(str(e))
+                return "Error encountered while processing the input file: " + str(e)
+
+            finally:
+                if zipobj is not None:
+                    zipobj.close()
+
+                os.remove(file_name)
 
     def get_tasks(self, user_name, job_name):
         with self._lock:

@@ -34,22 +34,26 @@ logger = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------------------------TODO
 #TODO: can't this be a method in the Task class, or its subclasses
-def TaskFromJSON(json):
+def TaskFromJSON(json_obj, flattened = False):
     """ Creates an instance of either EventTask or DataFlowTask from a json representation.
     """
-    task_name = json.get("task_name", None)
-    cmd_args = json.get("cmd_args", None)
+    task_name = json_obj.get("task_name", None)
+    cmd_args = json_obj.get("cmd_args", None)
     assert task_name is not None
     assert cmd_args is not None
-    event_json = json.get("event", None)
+    event_json = json_obj.get("event", None)
     if event_json:
-        event = events.EventFromJSON(event_json)
+        event = events.EventFromJSON(event_json if not flattened else json.loads(event_json))
         return EventTask(task_name, cmd_args, event)
     # Else it is a dataflow task
-    condition = json.get("condition", None)
-    input_size = json.get("input_size", None)
+    condition = json_obj.get("condition", None)
+    input_size = json_obj.get("input_size", None)
     assert condition is not None
     assert input_size is not None
+
+    if flattened:
+        condition = json.loads(condition)
+
     return DataFlowTask(task_name, cmd_args, condition, input_size)
 
 #-----------------------------------------------------------------------------------------------TODO
@@ -209,7 +213,7 @@ class EventTask(Task):
         """
         super(EventTask, self).execute(env)
 
-    def json(self):
+    def json(self, flatten = False):
         """ Creates a json representation of the name, command line args, and the event. 
 
         Returns
@@ -219,7 +223,7 @@ class EventTask(Task):
         return {
             "task_name" : self.name,
             "cmd_args" : self.cmd_args,
-            "event" : self.event.json()
+            "event" : self.event.json() if not flatten else json.dumps(self.event.json())
         }
 
 
@@ -300,7 +304,7 @@ class DataFlowTask(Task):
         env[constants.ENV_TASK_INPUT_JSON] = json.dumps(input_data)
         super(DataFlowTask, self).execute(env)
 
-    def json(self):
+    def json(self, flatten = False):
         """ Creates a json representation of the name, command line args, condition, and the input
         size. The input data is not included.
 
@@ -311,7 +315,7 @@ class DataFlowTask(Task):
         return {
             "task_name" : self.name,
             "cmd_args" : self.cmd_args,
-            "condition" : self.condition,
+            "condition" : self.condition if not flatten else json.dumps(self.condition),
             "input_size" : self.input_size
         }
 

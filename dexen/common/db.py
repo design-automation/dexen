@@ -73,7 +73,7 @@ STATUS_FINISHED = "Finished"
 STATUS_FAILED = "Failed"
 STATUS_SCHEDULED = "Scheduled"
 
-JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters"]
+JOB_DATA_COLLECTION_SUFFIXES = [".data", ".executions", ".counters", ".tasks", ".files", ".chunks"]
 
 # ==================================================================================================
 # Functions for getting mongoDB databases and collections.
@@ -116,6 +116,16 @@ def GetJobExecutionCollection(db_client, user_name, job_name):
     """
     return coll.Collection(GetUserDB(db_client, user_name), job_name+".executions")
 
+def GetJobTasksCollection(db_client, user_name, job_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), job_name+".tasks")
+
+def GetJobsInfoCollection(db_client, user_name):
+    """
+    """
+    return coll.Collection(GetUserDB(db_client, user_name), "_jobsinfo")
+
 def GetNextJobDataId(db_client, user_name, job_name):
     counterColl = GetJobDataIdCounterCollection(db_client, user_name, job_name)
     doc = counterColl.find_and_modify(query = { "_id": "data_id" }, update = { "$inc": { "seq": 1 } }, new = True)
@@ -131,14 +141,28 @@ def GetJobNameFromCollectionName(collection_name):
     return None
 
 def GetJobNames(db_client, user_name):
-    userDb = GetUserDB(db_client, user_name);
+    jobsInfoColls = GetJobsInfoCollection(db_client, user_name);
+    found = False
     jobNames = set()
+    for jobInfo in jobsInfoColls.find():
+        found = True
+        jobNames.add(jobInfo["_id"]);
+
+    if found:
+        return jobNames
+
+    userDb = GetUserDB(db_client, user_name);
     for colName in userDb.collection_names(False):
         jobName = GetJobNameFromCollectionName(colName)
         if not jobName is None:
             jobNames.add(jobName)
 
     return jobNames
+
+def DeleteAllJobData(db_client, user_name, job_name):
+    userDb = GetUserDB(db_client, user_name);
+    for suffix in JOB_DATA_COLLECTION_SUFFIXES:
+        userDb.drop_collection(job_name + suffix)
 
 # ==================================================================================================
 # Functions for working with attributes, used in the JobDataManager class.
@@ -573,12 +597,9 @@ class JobDataManager(object):
     def get_modified_attrs(self, data_id, execution_id):
         """
         """
-        self.logger.debug("Get modified attributes for execution: %s",
-                          execution_id)
         field = self._attrs_being_modified_field(execution_id)
         result = self.coll.find_one(
             {"_id": data_id.get_value(), field: {"$exists": 1}}, fields=[field])
-        self.logger.debug("Modified attributes result: %s", result)
         if result:
             return result[ATTRS_BEING_MODIFIED][execution_id]
         return []
@@ -645,3 +666,6 @@ class JobDataManager(object):
         if not res is None:
             return res.get(attr_name)
         return None
+
+    def get_data(self, data_id):
+        return self.coll.find_one(data_id, fields={ATTRS_BEING_MODIFIED : False, FIELD_ROLLBACK : False})

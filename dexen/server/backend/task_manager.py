@@ -759,7 +759,6 @@ class DataFlowTaskManager(TaskManager):
             self._add_to_pending_if_valid(task_info, input_ids)
 
         modified_ids = self.data_mgr.get_ids_being_modified(execution_id)
-        self.logger.debug("Modified ids by execution %s: %s", execution_id, modified_ids)
         self.data_mgr.remove_execution_ids(modified_ids, execution_id)
         # Remove all the modified ids from all the pending queues.
         for task_info in self.tasks_info.values():

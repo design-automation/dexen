@@ -33,9 +33,34 @@ function updateActivePane(){
 
 function updateJobBtns($tr) {
     var status = getCurrentJobStatusFromTable();
-    $('#runJobBtn').disable(status === 'RUNNING');
-    $('#stopJobBtn').disable(status === 'STOPPED');
-    $('#deleteJobBtn').disable(status === 'RUNNING');
+    $('#runJobBtn').disable(status !== 'STOPPED');
+    $('#stopJobBtn').disable(status !== 'RUNNING');
+    $('#deleteJobBtn').disable(status !== 'STOPPED');
+    $('#exportJobBtn').disable(status !== 'STOPPED');
+    var stopped = allJobsStopped();
+    $('#importJobBtn').disable(!stopped);
+    if(stopped)
+        $('#importJobContainer').removeClass('reducedOpacity');
+    else
+        $('#importJobContainer').addClass('reducedOpacity');
+}
+
+function updateJobBtnsEmptyJob() {
+    $('#runJobBtn').disable(true);
+    $('#stopJobBtn').disable(true);
+    $('#deleteJobBtn').disable(true);
+    $('#exportJobBtn').disable(true);
+    $('#importJobBtn').disable(false);
+    $('#importJobContainer').removeClass('reducedOpacity');
+}
+
+function allJobsStopped() {
+    var stopped = true;
+    $("#jobsTable tbody tr td:nth-child(2)").each(function(i, td){
+        if($(td).text() != 'STOPPED')
+            stopped = false;
+    });
+    return stopped;
 }
 
 function setupJobsTable() {
@@ -114,6 +139,7 @@ function updateJobsTable(jobs, curJobName) {
             $("ul.nav-tabs li").removeClass("active");
             $("ul.nav-tabs li").addClass("disabled");
             $("div.tab-content div.tab-pane").removeClass("active");
+            updateJobBtnsEmptyJob();
             return;
         } else{
             jobName = jobs[0]['job_name'];

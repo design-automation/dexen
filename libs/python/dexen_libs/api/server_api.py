@@ -28,6 +28,9 @@ import requests
 
 import constants as con
 
+import cPickle as pickle
+import base64
+
 # Util functiion
 
 def zipfolder(foldername, target_dir, include_rootdir=True):
@@ -131,6 +134,18 @@ class ServerProxy(object):
         url = "%s/deregister_task/%s/%s"%(self.server_url, job_name, task_name)
         self.session.post(url)
 
+    def get_data(self, job_name, data_id):
+        enc_id = base64.b64encode(pickle.dumps(data_id))
+        url = "%s/data/%s/%s"%(self.server_url, job_name, enc_id)
+        r = self.session.get(url)
+        if r.status_code is requests.codes.ok:
+            enc_data = r.json().get("data")
+            data = pickle.loads(base64.b64decode(enc_data))
+            return data
+
+        return None
+
+
 # Server api
 
 class ServerAPI(object):
@@ -202,11 +217,8 @@ class JobAPI(object):
     def deregister_task(self, task_name):
         self._svr_proxy.deregister_task(self.job_name, task_name)
 
-    def get_data(self, last_update):
-        """
-        This needs more thought...
-        """
-        pass
+    def get_data_object(self, data_id):
+        return self._svr_proxy.get_data(self.job_name, data_id)
 
 
 
