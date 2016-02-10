@@ -19,7 +19,7 @@
 #
 # ==================================================================================================
 """
-Reads a file.
+Reads and writes some data.
 
 The condition for this task should look something like this:
 
@@ -28,15 +28,18 @@ The condition for this task should look something like this:
     "data2":{"$exists":False}
 }
 
-Note that in Javascript you need to use 'true'and 'false'.
 """
 
 from dexen_libs.api import data_api
 
-print "read file"
+print "executing task..."
 
 data_objects = data_api.GetAssignedDataObjects()
 
 for do in data_objects:
-    value = float(do.get_value("data1")) #this reads the file
+    value = float(do.get_value("data1"))
     do.set_value("data2", value * 2)
+
+
+
+

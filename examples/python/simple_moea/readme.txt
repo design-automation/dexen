@@ -38,3 +38,7 @@ Running from command line
 =========================
 To run this job from the command line, edit the username and password in the file main.py. 
 Then you need to run this file, i.e.: python main.py
+
+Log files
+=========
+Log files will be saved to the dexen/scripts folder. 
