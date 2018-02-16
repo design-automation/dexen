@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>Getting Started with Dexen | phtj.gthub.io</title>
+<meta property="og:title" content="Getting Started with Dexen" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/install.html" />
+<meta property="og:url" content="http://localhost:4000/install.html" />
+<meta property="og:site_name" content="phtj.gthub.io" />
+<script type="application/ld+json">
+{"name":null,"description":null,"author":null,"@type":"WebPage","url":"http://localhost:4000/install.html","publisher":null,"image":null,"headline":"Getting Started with Dexen","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body>
+
+    <div class="wrapper">
+
+      <header>
+
+        <a href="http://github.com/pages/dexen/phtj.gthub.io"> <h1 class="parent">Design Automation Lab</h1> </a>
+        <a href="http://github.com/pages/dexen/phtj.gthub.io"> <h1 class="title">Dexen</h1> </a>
+        <p>
+          Distributed Execution Environment
+        </p>
+
+        <div class="nav-wrapper">
+          <h1 class="nav"><a href="overview.html">Overview</a></h1>
+          <h1 class="nav"><a href="install.html">Getting Started</a></h1>
+          <h1 class="nav"><a href="examples.html">Examples</a></h1>
+        </div>
+
+      </header>
+
+      <section>
+        <h1 id="getting-started-with-dexen">Getting Started with Dexen</h1>
+
+<h2 id="install-python">Install Python</h2>
+
+<p>Install the latest 2.7.x version of python.</p>
+<ul>
+  <li><a href="https://www.python.org/downloads/">Python</a></li>
+</ul>
+
+<p>Make sure that the python executable is on the enironment PATH.</p>
+
+<h2 id="install-mongodb">Install MongoDB</h2>
+
+<p>Dexen uses MongoDB as its database.</p>
+<ul>
+  <li><a href="http://www.mongodb.org/downloads">Install Mongodb</a></li>
+  <li>Create the data folder, which by default is C:\data\db</li>
+</ul>
+
+<h2 id="install-dependencies">Install Dependencies</h2>
+
+<p>To install the Dexen dependency libraries, it is recommended to use the pip package manager. It is included in Python, so there is no need to install it.</p>
+<ul>
+  <li><a href="https://pip.pypa.io/en/stable/">pip</a></li>
+</ul>
+
+<p>The following libraries are required by Dexen.</p>
+<ul>
+  <li>flask (werkzeug, jinja2, markupsafe and itsdangerous packages will be automatically installed when flask is installed since these packages are dependencies of the flask package.)</li>
+  <li>flask-login</li>
+  <li>flask-wtf</li>
+  <li>pymongo</li>
+  <li>requests</li>
+  <li>rpyc</li>
+</ul>
+
+<p>To install all the 3rd party libraries, type the following at the command prompt:
+$ pip install -U flask flask-login flask-wtf pymongo requests rpyc</p>
+
+<p>If you need to uninstall the libraries, you can type the following:
+$ pip uninstall flask flask-login flask-wtf pymongo requests rpyc</p>
+
+<h2 id="install-dexen">Install Dexen</h2>
+
+<p>To install Dexen, follow these steps:</p>
+<ul>
+  <li><a href="https://github.com/phtj/dexen/releases">Download latest release</a></li>
+  <li>Unzip the file anywhere</li>
+  <li>Set up your environment. For windows users, double click the file $DEXEN/bin/SetWinEnv.bat</li>
+</ul>
+
+<h2 id="start-dexen">Start Dexen</h2>
+
+<p>To start Dexen:</p>
+
+<p>Open the command window and do the following:</p>
+<ul>
+  <li>Start mongodb: $ start mongod</li>
+  <li>Start back end: $ db</li>
+  <li>Start front end: $ df</li>
+  <li>Start node: $ dn</li>
+</ul>
+
+<p>There is also a single bat file that does all this in one. It is useful if you are running dexen on just one computer and prefer not to have lots of command windows open.</p>
+<ul>
+  <li>Start everything: $ dxn</li>
+</ul>
+
+<h2 id="view-dexen-interface">View Dexen Interface</h2>
+
+<p>There is a UI that you can access through the browser. If you are running Dexen locally, you can access the UI at http://localhost:5000/.</p>
+<ul>
+  <li><a href="http://localhost:5000/register">Register</a> (Any username and password.)</li>
+  <li><a href="http://localhost:5000/login">Login</a></li>
+  <li>Start running jobs.</li>
+</ul>
+
+      </section>
+
+      <footer>
+        <p><small>Hosted on GitHub Pages</small></p>
+      </footer>
+
+    </div>
+    <script src="/assets/js/scale.fix.js"></script>
+
+
+  
+  </body>
+</html>
