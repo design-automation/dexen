@@ -2,6 +2,8 @@
 title: Home
 ---
 
+# Home
+
 ![Dexen](./assets/images/dexen.png)
 
 Dexen is an execution environment for running computationally demanding jobs on distributed computing resources. These include cloud based infrastructures such as Amazon EC2.

@@ -4,6 +4,8 @@ title: Getting Started with Dexen
 
 # Getting Started with Dexen
 
+Installing Dexen either on a local network or on the Amazon is straight forward and requires minimal configuration. The user is then able to interact with Dexen via a web application in a web browser, or via an Application Programming Interface.
+
 ## Install Python
 
 Install the latest 2.7.x version of python.
@@ -31,30 +33,32 @@ The following libraries are required by Dexen.
 - rpyc
 
 To install all the 3rd party libraries, type the following at the command prompt:
-$ pip install -U flask flask-login flask-wtf pymongo requests rpyc
+
+- `$ pip install -U flask flask-login flask-wtf pymongo requests rpyc`
 
 If you need to uninstall the libraries, you can type the following:
-$ pip uninstall flask flask-login flask-wtf pymongo requests rpyc
+
+- `$ pip uninstall flask flask-login flask-wtf pymongo requests rpyc`
 
 ## Install Dexen
 
 To install Dexen, follow these steps:
 - [Download latest release](https://github.com/phtj/dexen/releases)
 - Unzip the file anywhere
-- Set up your environment. For windows users, double click the file $DEXEN/bin/SetWinEnv.bat
+- Set up your environment. For windows users, double click the file `$ DEXEN/bin/SetWinEnv.bat`
 
 ## Start Dexen
 
 To start Dexen:
 
 Open the command window and do the following:
-- Start mongodb: $ start mongod
-- Start back end: $ db
-- Start front end: $ df
-- Start node: $ dn
+- Start mongodb: `$ start mongod`
+- Start back end: `$ db`
+- Start front end: `$ df`
+- Start node: `$ dn`
 
 There is also a single bat file that does all this in one. It is useful if you are running dexen on just one computer and prefer not to have lots of command windows open.
-- Start everything: $ dxn
+- Start everything: `$ dxn`
 
 ## View Dexen Interface
 
